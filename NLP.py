@@ -1,6 +1,6 @@
-import nltk
-import re
 import sys
+import re
+import nltk
 
 print("OS: ", sys.platform)
 print("Python: ", sys.version)
