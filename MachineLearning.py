@@ -46,7 +46,7 @@ k_fold = KFold(len(y), n_folds=10, shuffle=True, random_state=46)
 cross_val_score(model, X, y, cv=k_fold, n_jobs=-1)
 
 
-### Probability Threshold Search
+### Probability Threshold Search - xgboost
 cv = cross_validation.KFold(len(X), n_folds=5, shuffle=True, random_state=46)
 
 # Making a dataframe to store results of various iterations
@@ -83,9 +83,31 @@ print("The Model performace is :")
 print(xgbResults.mean())
 
 
+### Probability Threshold Search - scikit-learn
+predicted = model.predict_proba(X_test)[:,1]
+expected = y_test
+
+# Creating an empty dataframe to fill
+results = pd.DataFrame(columns=['threshold', 'f1'])
+
+# Looping trhough different probability thresholds
+for thresh in np.arange(0, 30000):
+    pred_bin = pd.Series(predicted).apply(lambda x: 1 if x > (thresh / 100000) else 0)
+    f1 = metrics.f1_score(expected, pred_bin)
+    temp_results = {'threshold': (thresh / 100000), 'f1': metrics.f1_score(pred_bin, y_test)}
+    results = results.append(temp_results, ignore_index = True)
+    
+best_index = list(result['f1']).index(max(results['f1']))
+print(results.ix[best_index])
+
 
 ### Grid search
-
+from sklearn.model_selection import GridSearchCV
+parameters = {'kernel':('linear', 'rbf'), 'C':[1, 10]}
+svc = svm.SVC()
+clf = GridSearchCV(svc, parameters)
+clf.fit(iris.data, iris.target)
+sorted(clf.cv_results_.keys())
 
 
 ### Ensemble Model Importance
