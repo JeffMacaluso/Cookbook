@@ -70,21 +70,21 @@ for traincv, testcv in cv:
     
     # Looping through probability thresholds to gather the f1 score at each threshold
     for probabilityThreshold in np.linspace(0,0.1,100):
-        pred_bin = pd.Series(predictions).apply(lambda x: 1 if x > probabilityThreshold else 0)
-        a = {'probabilityThreshold': probabilityThreshold, 'f1': f1_score(y[testcv], pred_bin)}
-        temporaryResults = temporaryResults.append(a, ignore_index=True)
+        predBin = pd.Series(predictions).apply(lambda x: 1 if x > probabilityThreshold else 0)
+        threshF1 = {'probabilityThreshold': probabilityThreshold, 'f1': f1_score(y[testcv], predBin)}
+        temporaryResults = temporaryResults.append(threshF1, ignore_index=True)
     
     # Retrieving the f1 score and probability thresholds at the highest f1 score
-    best_index = list(temporaryResults['f1']).index(max(temporaryResults['f1']))
-    a1 = {'probabilityThreshold': temporaryResults.ix[best_index][0], 'f1': temporaryResults.ix[best_index][1]}
-    xgbResults = xgbResults.append(a1,ignore_index = True)    
+    bestIndex = list(temporaryResults['f1']).index(max(temporaryResults['f1']))
+    bestTempResults = {'probabilityThreshold': temporaryResults.ix[bestIndex][0], 'f1': temporaryResults.ix[bestIndex][1]}
+    xgbResults = xgbResults.append(bestTempResults, ignore_index=True)    
 
-print("The Model performace is :")
+print("The Model performace is:")
 print(xgbResults.mean())
 
 
 ### Probability Threshold Search - scikit-learn
-predicted = model.predict_proba(X_test)[:,1]
+predicted = model.predict_proba(X_test)[:, 1]
 expected = y_test
 
 # Creating an empty dataframe to fill
@@ -94,8 +94,8 @@ results = pd.DataFrame(columns=['threshold', 'f1'])
 for thresh in np.arange(0, 30000):
     pred_bin = pd.Series(predicted).apply(lambda x: 1 if x > (thresh / 100000) else 0)
     f1 = metrics.f1_score(expected, pred_bin)
-    temp_results = {'threshold': (thresh / 100000), 'f1': metrics.f1_score(pred_bin, y_test)}
-    results = results.append(temp_results, ignore_index = True)
+    tempResults = {'threshold': (thresh / 100000), 'f1': metrics.f1_score(pred_bin, y_test)}
+    results = results.append(tempResults, ignore_index = True)
     
 best_index = list(result['f1']).index(max(results['f1']))
 print(results.ix[best_index])
