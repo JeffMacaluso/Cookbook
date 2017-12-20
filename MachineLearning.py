@@ -11,3 +11,9 @@ sns.set_style("ticks")
 pd.set_option('display.max_columns', None)
 
 %matplotlib inline
+
+
+### Missing Values
+import missingno as msno  # Visualizes missing values
+msno.matrix(df)
+msno.heatmap(df)  # Co-occurrence of missing values
