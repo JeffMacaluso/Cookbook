@@ -2,6 +2,12 @@ import numpy as np
 import pandas as pd
 import matplotlib.pyplot as plt
 import seaborn as sns
+import sys
+
+print("OS: ", sys.platform)
+print("Python: ", sys.version)
+print("NumPy: ", np.__version__)
+print("Pandas: ", pd.__version__)
 
 # Formatting for seaborn plots
 sns.set_context("notebook", font_scale=1.1)
