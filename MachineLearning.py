@@ -17,3 +17,9 @@ pd.set_option('display.max_columns', None)
 import missingno as msno  # Visualizes missing values
 msno.matrix(df)
 msno.heatmap(df)  # Co-occurrence of missing values
+
+### Quick EDA report on dataframe
+import pandas_profiling
+profile = pandas_profiling.ProfileReport(df)
+profile.get_rejected_variables(threshold=0.9)  # Rejected variables w/ high correlation
+profile.to_file(outputfile="/tmp/myoutputfile.html")  # Saving report as a file
