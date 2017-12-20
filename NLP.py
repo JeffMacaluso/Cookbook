@@ -1,5 +1,10 @@
 import nltk
 import re
+import sys
+
+print("OS: ", sys.platform)
+print("Python: ", sys.version)
+print('NLTK: ', nltk.__version__)
 
 ### Tokenizing
 tokenizer = nltk.tokenize.RegexpTokenizer(r'\w+')  # By blank space
