@@ -29,3 +29,8 @@ import pandas_profiling
 profile = pandas_profiling.ProfileReport(df)
 profile.get_rejected_variables(threshold=0.9)  # Rejected variables w/ high correlation
 profile.to_file(outputfile="/tmp/myoutputfile.html")  # Saving report as a file
+
+
+### Train/test split
+from sklearn.model_selection import train_test_split
+X_train, X_test, y_train, y_test = train_test_split(X, y, test_size = 0.30, random_state = 46)
