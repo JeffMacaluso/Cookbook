@@ -37,12 +37,12 @@ df_encoded = pd.get_dummies(df, columns=['a', 'b', 'c'], drop_first=True)
 
 # Normalizing
 from sklearn import preprocessing
-X_norm = preprocessing.normalize(X, norm='max', axis = 1)  # Normalizing across columns
+X_norm = preprocessing.normalize(X, norm='max', axis=1)  # Normalizing across columns
 
 ### Cross Validation
 # Holdout method
 from sklearn.model_selection import train_test_split
-X_train, X_test, y_train, y_test = train_test_split(X, y, test_size = 0.30, random_state = 46)
+X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.30, random_state=46)
 
 # K-fold cross validation
 from sklearn.model_selection import KFold
@@ -107,7 +107,7 @@ print(results.ix[best_index])
 
 ### Grid search
 from sklearn.model_selection import GridSearchCV
-parameters = {'kernel':('linear', 'rbf'), 'C':[1, 10]}
+parameters = {'kernel': ('linear', 'rbf'), 'C': [1, 10]}
 svc = svm.SVC()
 clf = GridSearchCV(svc, parameters)
 clf.fit(iris.data, iris.target)
