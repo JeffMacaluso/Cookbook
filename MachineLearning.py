@@ -32,6 +32,9 @@ profile.to_file(outputfile="/tmp/myoutputfile.html")  # Saving report as a file
 
 
 ### Preprocessing
+# One-hot encoding multiple columns
+df_encoded = pd.get_dummies(df, columns=['a', 'b', 'c'], drop_first=True)
+
 # Normalizing
 from sklearn import preprocessing
 X_norm = preprocessing.normalize(X, norm='max', axis = 1)  # Normalizing across columns
