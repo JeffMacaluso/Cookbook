@@ -55,7 +55,7 @@ cv = cross_validation.KFold(len(X), n_folds=5, shuffle=True, random_state=46)
 
 # Making a dataframe to store results of various iterations
 xgbResults = pd.DataFrame(columns=['probabilityThreshold', 'f1'])
-accuracy, precision, recall, f1 = [],[],[],[]
+accuracy, precision, recall, f1 = [], [], [], []
 
 # Parameters for the model
 num_rounds = 8000
@@ -125,10 +125,10 @@ def feature_importance(model):
     feature_importance = 100.0 * (feature_importance / feature_importance.max())
     sorted_idx = np.argsort(feature_importance)
     pos = np.arange(sorted_idx.shape[0]) + .5
-    plt.figure(figsize = (15, 15))
+    plt.figure(figsize=(15, 15))
     plt.subplot(1, 2, 2)
     plt.barh(pos, feature_importance[sorted_idx], align='center')
-    plt.yticks(pos, df.drop(['adopter', 'user_id'], axis = 1)[sorted_idx])
+    plt.yticks(pos, df.drop(['adopter', 'user_id'], axis=1)[sorted_idx])
     plt.xlabel('Relative Importance')
     plt.title('Variable Importance')
     plt.show()
