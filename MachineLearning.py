@@ -110,8 +110,10 @@ from sklearn.model_selection import GridSearchCV
 parameters = {'kernel': ('linear', 'rbf'), 'C': [1, 10]}
 svc = svm.SVC()
 clf = GridSearchCV(svc, parameters)
-clf.fit(iris.data, iris.target)
-sorted(clf.cv_results_.keys())
+clf.fit(X, y)
+print(clf.best_estimator_, '\n', 
+      clf.best_params_, '\n', 
+      clf.best_score_)
 
 
 ### Ensemble Model Importance
