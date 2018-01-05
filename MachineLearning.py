@@ -151,8 +151,11 @@ def plot_residuals(model, values, labels):
     plt.show()
     
     # Plotting the residuals
+    ax = plt.subplot(111)
     plt.scatter(x=df_results.index, y=df_results.Residuals, alpha=0.5)
     plt.plot(np.repeat(0, df_results.index.max()), color='darkorange', linestyle='--')
+    ax.spines['right'].set_visible(False)  # Removing the right spine
+    ax.spines['top'].set_visible(False)  # Removing the top spine
     plt.title('Residuals')
     plt.show()
     
