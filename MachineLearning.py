@@ -128,7 +128,7 @@ def feature_importance(model):
     plt.figure(figsize=(15, 15))
     plt.subplot(1, 2, 2)
     plt.barh(pos, feature_importance[sorted_idx], align='center')
-    plt.yticks(pos, df.drop(['adopter', 'user_id'], axis=1)[sorted_idx])
+    plt.yticks(pos, X.columns[sorted_idx])
     plt.xlabel('Relative Importance')
     plt.title('Variable Importance')
     plt.show()
