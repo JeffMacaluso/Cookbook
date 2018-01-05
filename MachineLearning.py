@@ -132,3 +132,29 @@ def feature_importance(model):
     plt.xlabel('Relative Importance')
     plt.title('Variable Importance')
     plt.show()
+   
+
+### Plotting residuals
+def plot_residuals(model, values, labels):
+    """
+    Creates two plots: Actual vs. Predicted and Residuals
+    """
+    # Calculating the predictions and residuals
+    predictions = model.predict(values)
+    df_results = pd.DataFrame({'Actual': labels, 'Predicted': predictions})
+    df_results['Residuals'] = abs(df_results['Actual']) - abs(df_results['Predicted'])
+    
+    # Plotting the actual vs predicted
+    sns.lmplot(x='Actual', y='Predicted', data=df_results, fit_reg=False, size=6)
+    plt.plot(np.arange(0, df_results.max().max()), color='darkorange', linestyle='--')
+    plt.title('Actual vs. Predicted')
+    plt.show()
+    
+    # Plotting the residuals
+    plt.scatter(x=df_results.index, y=df_results.Residuals, alpha=0.5)
+    plt.plot(np.repeat(0, df_results.index.max()), color='darkorange', linestyle='--')
+    plt.title('Residuals')
+    plt.show()
+    
+    
+plot_residuals(model, X, y)
