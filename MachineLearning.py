@@ -116,6 +116,33 @@ print(clf.best_estimator_, '\n',
       clf.best_score_)
 
 
+### Basic model performance
+def initial_regression_test(X, y):
+    """
+    Tests multiple regression models and plots performance for cross-validation with a holdout set
+    ---Note: Add models here
+    """
+    # Splitting between testing and training
+    from sklearn.model_selection import train_test_split
+    X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.30, random_state=46)
+    
+    # Linear regression
+    from sklearn.linear_model import LinearRegression
+    lm = LinearRegression()
+    lm.fit(X_train, y_train)
+    lmScore = lm.score(X_test, y_test)
+    
+    # Decision trees
+    from sklearn.tree import DecisionTreeRegressor
+    decisionTree = DecisionTreeRegressor()
+    decisionTree.fit(X_train, y_train)
+    decisionTreeScore =decisionTree.score(X_test, y_test)
+    return lmScore, decisionTreeScore
+    
+    
+initial_regression_test(X, y)
+
+
 ### Ensemble Model Importance
 def feature_importance(model):
     """
