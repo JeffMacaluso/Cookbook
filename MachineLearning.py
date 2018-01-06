@@ -131,11 +131,22 @@ def initial_regression_test(X, y):
     from sklearn.model_selection import train_test_split
     X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.30, random_state=46)
     
+    def get_score(model):
+        """
+        Fits the model and returns a series containing the RMSE, MAE, and R^2
+        """
+        from sklearn.metrics import mean_squared_error, mean_absolute_error
+        model.fit(X_train, y_train)
+        predictions = model.predict(X_test)
+        r2 = model.score(X_test, y_test)
+        rmse = np.sqrt(mean_squared_error(y_test, predictions))
+        mae = mean_absolute_error(y_test, predictions)
+        return r2
+    
     # Linear regression
     from sklearn.linear_model import LinearRegression
     lm = LinearRegression(n_jobs=-1)
-    lm.fit(X_train, y_train)
-    lmScore = lm.score(X_test, y_test)
+    lmScore = get_score(lm)
     
     # Decision tree
     from sklearn.tree import DecisionTreeRegressor
