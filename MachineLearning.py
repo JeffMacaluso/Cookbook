@@ -18,23 +18,24 @@ pd.set_option('display.max_columns', None)
 
 %matplotlib inline
 
-
+#################################################################################################################
 ### Checking Missing Values
 import missingno as msno  # Visualizes missing values
 msno.matrix(df)
 msno.heatmap(df)  # Co-occurrence of missing values
 
+#################################################################################################################
 ### Quick EDA report on dataframe
 import pandas_profiling
 profile = pandas_profiling.ProfileReport(df)
 profile.get_rejected_variables(threshold=0.9)  # Rejected variables w/ high correlation
 profile.to_file(outputfile="/tmp/myoutputfile.html")  # Saving report as a file
 
-
+#################################################################################################################
 ### Preprocessing
 # One-hot encoding multiple columns
 df_encoded = pd.get_dummies(df, columns=['a', 'b', 'c'], drop_first=True)
-
+#################################################################################################################
 # Normalizing
 from sklearn import preprocessing
 X_norm = preprocessing.normalize(X, norm='max', axis=1)  # Normalizing across columns
@@ -49,7 +50,7 @@ from sklearn.model_selection import KFold
 k_fold = KFold(n_splits=10, shuffle=True, random_state=46)
 cross_val_score(model, X, y, cv=k_fold, n_jobs=-1)
 
-
+#################################################################################################################
 ### Probability Threshold Search - xgboost
 cv = cross_validation.KFold(len(X), n_folds=5, shuffle=True, random_state=46)
 
@@ -86,7 +87,7 @@ for traincv, testcv in cv:
 print("The Model performace is:")
 print(xgbResults.mean())
 
-
+#################################################################################################################
 ### Probability Threshold Search - scikit-learn
 predicted = model.predict_proba(X_test)[:, 1]
 expected = y_test
@@ -104,7 +105,7 @@ for thresh in np.arange(0, 30000):
 best_index = list(result['f1']).index(max(results['f1']))
 print(results.ix[best_index])
 
-
+#################################################################################################################
 ### Grid search
 from sklearn.model_selection import GridSearchCV
 parameters = {'kernel': ('linear', 'rbf'), 'C': [1, 10]}
@@ -115,8 +116,9 @@ print(clf.best_estimator_, '\n',
       clf.best_params_, '\n', 
       clf.best_score_)
 
-
+#################################################################################################################
 ### Basic model performance
+# Regression
 def initial_regression_test(X, y):
     """
     Tests multiple regression models and plots performance for cross-validation with a holdout set
@@ -181,7 +183,7 @@ def initial_regression_test(X, y):
     
 initial_regression_test(X, y)
 
-
+#################################################################################################################
 ### Ensemble Model Importance
 def feature_importance(model):
     """
@@ -199,7 +201,7 @@ def feature_importance(model):
     plt.title('Variable Importance')
     plt.show()
    
-
+#################################################################################################################
 ### Plotting residuals
 def plot_residuals(model, values, labels):
     """
