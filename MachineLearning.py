@@ -179,7 +179,7 @@ def initial_regression_test(X, y):
     
     # MLP Neural Network - http://scikit-learn.org/stable/modules/generated/sklearn.neural_network.MLPRegressor.html
     from sklearn.neural_network import MLPRegressor
-    nn = MLPRegressor(hidden_layer_sizes=(100, ), activation='relu', solver='adam',
+    nn = MLPRegressor(hidden_layer_sizes=(100, ), activation='relu', solver='adam', alpha=0.0001,
                       learning_rate='constant', learning_rate_init=0.001)
     nnScore = get_score(nn)
     
