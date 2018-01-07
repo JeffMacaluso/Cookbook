@@ -131,28 +131,44 @@ def initial_regression_test(X, y):
     from sklearn.model_selection import train_test_split
     X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.30, random_state=46)
     
-    def get_score(model):
+    # Min-max scaling for neural nets and SVMs
+    from sklearn import preprocessing
+    X_train_norm = preprocessing.normalize(X_train, norm='max', axis=0)  # Normalizing across columns
+    X_test_norm = preprocessing.normalize(X_test, norm='max', axis=0)  # Normalizing across columns
+    
+    def get_score(model, norm=False):
         """
         Fits the model and returns a series containing the RMSE, MAE, and R^2
         """
         from sklearn.metrics import mean_squared_error, mean_absolute_error
-        model.fit(X_train, y_train)
-        predictions = model.predict(X_test)
         
-        r2 = model.score(X_test, y_test)
-        rmse = np.sqrt(mean_squared_error(y_test, predictions))
-        mae = mean_absolute_error(y_test, predictions)
+        # Fits with either regular or normalized training set
+        if norm == False:
+            model.fit(X_train, y_train)
+            predictions = model.predict(X_test)
+        
+            r2 = model.score(X_test, y_test)
+            rmse = np.sqrt(mean_squared_error(y_test, predictions))
+            mae = mean_absolute_error(y_test, predictions)
+        else:
+            model.fit(X_train_norm, y_train)
+            predictions = model.predict(X_test_norm)
+        
+            r2 = model.score(X_test_norm, y_test)
+            rmse = np.sqrt(mean_squared_error(y_test, predictions))
+            mae = mean_absolute_error(y_test, predictions)
+            
         score_results = pd.Series([r2, rmse, mae], index=['R^2', 'RMSE', 'MAE'])
         
         return score_results
     
     
-    # Linear Regression - http://scikit-learn.org/stable/modules/generated/sklearn.linear_model.LinearRegression.html
+    # Linear regression - http://scikit-learn.org/stable/modules/generated/sklearn.linear_model.LinearRegression.html
     from sklearn.linear_model import LinearRegression
     lm = LinearRegression(n_jobs=-1)
     lmScore = get_score(lm)
     
-    # Decision Tree - http://scikit-learn.org/stable/modules/generated/sklearn.tree.DecisionTreeRegressor.html
+    # Decision tree - http://scikit-learn.org/stable/modules/generated/sklearn.tree.DecisionTreeRegressor.html
     from sklearn.tree import DecisionTreeRegressor
     dt = DecisionTreeRegressor(max_depth=None, min_samples_split=2, min_samples_leaf=1)
     dtScore = get_score(dt)
@@ -165,7 +181,7 @@ def initial_regression_test(X, y):
     # Support Vector Machine - http://scikit-learn.org/stable/modules/generated/sklearn.svm.SVR.html
     from sklearn.svm import SVR
     svm = SVR(C=1.0, epsilon=0.1, kernel='rbf')
-    svmScore = get_score(svm)
+    svmScore = get_score(svm, norm=True)
     
     # Random Forest - http://scikit-learn.org/stable/modules/generated/sklearn.ensemble.RandomForestRegressor.html
     from sklearn.ensemble import RandomForestRegressor
@@ -181,7 +197,7 @@ def initial_regression_test(X, y):
     from sklearn.neural_network import MLPRegressor
     nn = MLPRegressor(hidden_layer_sizes=(100, ), activation='relu', solver='adam', alpha=0.0001,
                       learning_rate='constant', learning_rate_init=0.001)
-    nnScore = get_score(nn)
+    nnScore = get_score(nn, norm=True)
     
     # Putting results into a data frame before plotting
     results = pd.DataFrame({'LinearRegression': lmScore, 'DecisionTree': dtScore,
