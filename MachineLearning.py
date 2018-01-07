@@ -122,6 +122,7 @@ print(clf.best_estimator_, '\n',
 def initial_regression_test(X, y):
     """
     Tests multiple regression models and gathers performance from cross-validation with a holdout set
+    Uses default parameters from sklearn functions for most cases
     
     Outputs: - Dataframe containing RMSE, MAE, and R^2
              - Plots of RMSE/MAE and R^2
@@ -146,37 +147,37 @@ def initial_regression_test(X, y):
         return score_results
     
     
-    # Linear regression
+    # Linear regression - http://scikit-learn.org/stable/modules/generated/sklearn.linear_model.LinearRegression.html
     from sklearn.linear_model import LinearRegression
     lm = LinearRegression(n_jobs=-1)
     lmScore = get_score(lm)
     
-    # Decision tree
+    # Decision tree - http://scikit-learn.org/stable/modules/generated/sklearn.tree.DecisionTreeRegressor.html
     from sklearn.tree import DecisionTreeRegressor
     dt = DecisionTreeRegressor(max_depth=None, min_samples_split=2, min_samples_leaf=1)
     dtScore = get_score(dt)
     
-    # k-NN
+    # k-NN - http://scikit-learn.org/stable/modules/generated/sklearn.neighbors.KNeighborsRegressor.html
     from sklearn.neighbors import KNeighborsRegressor
     knn = KNeighborsRegressor(n_neighbors=5, n_jobs=-1)
     knnScore = get_score(knn)
     
-    # Support Vector Machine
+    # Support Vector Machine - http://scikit-learn.org/stable/modules/generated/sklearn.svm.SVR.html
     from sklearn.svm import SVR
     svm = SVR(C=1.0, epsilon=0.1, kernel='rbf')
     svmScore = get_score(svm)
     
-    # Random Forest
+    # Random Forest - http://scikit-learn.org/stable/modules/generated/sklearn.ensemble.RandomForestRegressor.html
     from sklearn.ensemble import RandomForestRegressor
     rf = RandomForestRegressor(n_estimators=100, max_depth=None, n_jobs=-1)
     rfScore = get_score(rf)
     
-    # Gradient Boosted Tree
+    # Gradient Boosted Trees - http://scikit-learn.org/stable/modules/generated/sklearn.ensemble.GradientBoostingRegressor.html
     from sklearn.ensemble import GradientBoostingRegressor
     gbt = GradientBoostingRegressor(n_estimators=100, learning_rate=0.1, max_depth=3)
     gbtScore = get_score(gbt)
     
-    # MLP Neural Network
+    # MLP Neural Network - http://scikit-learn.org/stable/modules/generated/sklearn.neural_network.MLPRegressor.html
     from sklearn.neural_network import MLPRegressor
     nn = MLPRegressor(hidden_layer_sizes=(100, ), activation='relu', solver='adam',
                       learning_rate='constant', learning_rate_init=0.001)
