@@ -121,11 +121,10 @@ print(clf.best_estimator_, '\n',
 # Regression
 def initial_regression_test(X, y):
     """
-    Tests multiple regression models and plots performance for cross-validation with a holdout set
-    ---Note: Add models here
-    ---To-do: - Create a function to get the score
-              - Add multiple loss functions (RMSE, MAE) and R^2
-              - Add plot
+    Tests multiple regression models and gathers performance from cross-validation with a holdout set
+    
+    Outputs: - Dataframe containing RMSE, MAE, and R^2
+             - Plots of RMSE/MAE and R^2
     """
     # Splitting between testing and training
     from sklearn.model_selection import train_test_split
