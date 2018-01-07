@@ -38,7 +38,7 @@ df_encoded = pd.get_dummies(df, columns=['a', 'b', 'c'], drop_first=True)
 #################################################################################################################
 # Normalizing
 from sklearn import preprocessing
-X_norm = preprocessing.normalize(X, norm='max', axis=1)  # Normalizing across columns
+X_norm = preprocessing.normalize(X, norm='max', axis=0)  # Normalizing across columns
 
 ### Cross Validation
 # Holdout method
