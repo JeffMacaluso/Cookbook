@@ -210,7 +210,8 @@ def initial_regression_test(X, y):
         """
         ax = results.plot(kind='barh')
         ax.spines['right'].set_visible(False)  # Removing the right spine
-        ax.spines['top'].set_visible(False) # Removing the top spine    
+        ax.spines['top'].set_visible(False)  # Removing the top spine    
+        plt.legend(loc=(1.04, 0.55))  # Moves the legend outside of the plot
         plt.title(title)
         plt.show()
     
