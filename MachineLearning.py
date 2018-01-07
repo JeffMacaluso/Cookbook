@@ -147,12 +147,12 @@ def initial_regression_test(X, y):
         return score_results
     
     
-    # Linear regression - http://scikit-learn.org/stable/modules/generated/sklearn.linear_model.LinearRegression.html
+    # Linear Regression - http://scikit-learn.org/stable/modules/generated/sklearn.linear_model.LinearRegression.html
     from sklearn.linear_model import LinearRegression
     lm = LinearRegression(n_jobs=-1)
     lmScore = get_score(lm)
     
-    # Decision tree - http://scikit-learn.org/stable/modules/generated/sklearn.tree.DecisionTreeRegressor.html
+    # Decision Tree - http://scikit-learn.org/stable/modules/generated/sklearn.tree.DecisionTreeRegressor.html
     from sklearn.tree import DecisionTreeRegressor
     dt = DecisionTreeRegressor(max_depth=None, min_samples_split=2, min_samples_leaf=1)
     dtScore = get_score(dt)
