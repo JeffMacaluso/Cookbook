@@ -123,9 +123,7 @@ def initial_regression_test(X, y):
     """
     Tests multiple regression models and plots performance for cross-validation with a holdout set
     ---Note: Add models here
-    ---To-do: - Create a function to get the score
-              - Add multiple loss functions (RMSE, MAE) and R^2
-              - Add plot
+    ---To-do: Add plot
     """
     # Splitting between testing and training
     from sklearn.model_selection import train_test_split
@@ -138,10 +136,14 @@ def initial_regression_test(X, y):
         from sklearn.metrics import mean_squared_error, mean_absolute_error
         model.fit(X_train, y_train)
         predictions = model.predict(X_test)
+        
         r2 = model.score(X_test, y_test)
         rmse = np.sqrt(mean_squared_error(y_test, predictions))
         mae = mean_absolute_error(y_test, predictions)
-        return r2
+        score_results = pd.Series([r2, rmse, mae], index=['R^2', 'RMSE', 'MAE'])
+        
+        return score_results
+    
     
     # Linear regression
     from sklearn.linear_model import LinearRegression
@@ -151,44 +153,38 @@ def initial_regression_test(X, y):
     # Decision tree
     from sklearn.tree import DecisionTreeRegressor
     dt = DecisionTreeRegressor(max_depth=None, min_samples_split=2, min_samples_leaf=1)
-    dt.fit(X_train, y_train)
-    dtScore = dt.score(X_test, y_test)
+    dtScore = get_score(dt)
     
     # k-NN
     from sklearn.neighbors import KNeighborsRegressor
     knn = KNeighborsRegressor(n_neighbors=5, n_jobs=-1)
-    knn.fit(X_train, y_train)
-    knnScore = knn.score(X_test, y_test)
+    knnScore = get_score(knn)
     
     # Support Vector Machine
     from sklearn.svm import SVR
     svm = SVR(C=1.0, epsilon=0.1, kernel='rbf')
-    svm.fit(X_train, y_train)
-    svmScore = svm.score(X_test, y_test)
+    svmScore = get_score(svm)
     
     # Random Forest
     from sklearn.ensemble import RandomForestRegressor
     rf = RandomForestRegressor(n_estimators=100, max_depth=None, n_jobs=-1)
-    rf.fit(X_train, y_train)
-    rfScore = rf.score(X_test, y_test)
+    rfScore = get_score(rf)
     
     # Gradient Boosted Tree
     from sklearn.ensemble import GradientBoostingRegressor
     gbt = GradientBoostingRegressor(n_estimators=100, learning_rate=0.1, max_depth=3)
-    gbt.fit(X_train, y_train)
-    gbtScore = gbt.score(X_test, y_test)
+    gbtScore = get_score(gbt)
     
     # MLP Neural Network
     from sklearn.neural_network import MLPRegressor
     nn = MLPRegressor(hidden_layer_sizes=(100, ), activation='relu', solver='adam',
                       learning_rate='constant', learning_rate_init=0.001)
-    nn.fit(X_train, y_train)
-    nnScore = nn.score(X_test, y_test)
+    nnScore = get_score(nn)
     
     # Putting results into a data frame before plotting
     results = pd.DataFrame({'LinearRegression': lmScore, 'DecisionTree': dtScore,
                             'k-NN': knnScore, 'SVM': svmScore, 'RandomForest': rfScore,
-                            'GradientBoosting': gbtScore, 'nnMLP': nnScore}, index=['R^2'])
+                            'GradientBoosting': gbtScore, 'nnMLP': nnScore})
     return results
     
     
