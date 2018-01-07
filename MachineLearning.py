@@ -123,7 +123,9 @@ def initial_regression_test(X, y):
     """
     Tests multiple regression models and plots performance for cross-validation with a holdout set
     ---Note: Add models here
-    ---To-do: Add plot
+    ---To-do: - Create a function to get the score
+              - Add multiple loss functions (RMSE, MAE) and R^2
+              - Add plot
     """
     # Splitting between testing and training
     from sklearn.model_selection import train_test_split
@@ -185,6 +187,24 @@ def initial_regression_test(X, y):
     results = pd.DataFrame({'LinearRegression': lmScore, 'DecisionTree': dtScore,
                             'k-NN': knnScore, 'SVM': svmScore, 'RandomForest': rfScore,
                             'GradientBoosting': gbtScore, 'nnMLP': nnScore})
+    
+    def plot_results(results, title=None):
+        """
+        Formats the results and plots them
+        """
+        ax = results.plot(kind='barh')
+        ax.spines['right'].set_visible(False)  # Removing the right spine
+        ax.spines['top'].set_visible(False) # Removing the top spine    
+        plt.title(title)
+        plt.show()
+    
+    
+    # Plotting the error metrics
+    plot_results(results.loc[['RMSE', 'MAE']], 'Error Metrics')
+    
+    # Plotting the R^2
+    plot_results(results.loc['R^2'], '$R^2$')
+    
     return results
     
     
