@@ -35,6 +35,7 @@ profile.to_file(outputfile="/tmp/myoutputfile.html")  # Saving report as a file
 ### Preprocessing
 # One-hot encoding multiple columns
 df_encoded = pd.get_dummies(df, columns=['a', 'b', 'c'], drop_first=True)
+
 #################################################################################################################
 # Normalizing
 from sklearn import preprocessing
@@ -391,3 +392,31 @@ def plot_residuals(model, values, labels):
     
     
 plot_residuals(model, X, y)
+
+#################################################################################################################
+### Plotting Learning Curve
+def plot_learning_curve(model, data, labels):
+    """
+    Plots the learning curve of a model using 3-fold Cross Validation
+    """
+    from sklearn.model_selection import learning_curve
+    learningCurve = learning_curve(model, X, y, cv=3, n_jobs=-1)
+    trainScores = learningCurve[1].mean(axis=1)
+    testScores = learningCurve[2].mean(axis=1)
+
+    # Putting the results into a dataframe before plotting
+    results = pd.DataFrame({'Training Set': trainScores, 'Testing Set': testScores},
+                           index=learningCurve[0])  # Training size
+    
+    # Plotting the curve
+    ax = results.plot(figsize=(10, 6), linestyle='-', marker='o')
+    plt.title('Learning Curve')
+    plt.xlabel('Training Size')
+    plt.ylabel('Cross Validation Score')
+    ax.spines['right'].set_visible(False)  # Removing the right spine
+    ax.spines['top'].set_visible(False)  # Removing the top spine    
+    plt.legend(loc=(1.04, 0.55))  # Moves the legend outside of the plot
+    plt.show()
+    
+
+plot_learning_curve(model, X, y)
