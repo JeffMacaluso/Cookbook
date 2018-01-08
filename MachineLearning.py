@@ -227,6 +227,124 @@ def initial_regression_test(X, y):
     
 initial_regression_test(X, y)
 
+# Classification
+def initial_classification_test(X, y):
+    """
+    Tests multiple classification models and gathers performance from cross-validation with a holdout set
+    
+    Outputs: - Dataframe containing Accuracy, F1, Precision, Recall, Support, Log Loss, and AUC (when applicable)
+             - Plots of dataframe contents
+    """
+    # Splitting between testing and training
+    from sklearn.model_selection import train_test_split
+    X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.30, random_state=46)
+    
+    # Min-max scaling for neural nets and SVMs
+    from sklearn import preprocessing
+    X_train_norm = preprocessing.normalize(X_train, norm='max', axis=0)  # Normalizing across columns
+    X_test_norm = preprocessing.normalize(X_test, norm='max', axis=0)  # Normalizing across columns
+    
+    def get_score(model, norm=False):
+        """
+        Fits the model and returns a series containing the Accuracy, F1, Precision, Recall, and others
+        http://scikit-learn.org/stable/modules/model_evaluation.html#classification-metrics
+        """
+        from sklearn.metrics import precision_recall_fscore_support, log_loss, hinge_loss
+
+        # Fits with either regular or normalized training set
+        if norm == False:
+            model.fit(X_train, y_train)
+            predictions = model.predict(X_test)
+            predictionProbabilities = model.predict_proba(X_test)
+        
+            # Creating the base metrics for all classification tasks
+            accuracy = model.score(X_test, y_test)
+            precision, recall, f1, support = precision_recall_fscore_support(y_test, predictions, average='micro')
+            logLoss = log_loss(y_test, predictionProbabilities)
+        else:
+            model.fit(X_train_norm, y_train)
+            predictions = model.predict(X_test_norm)
+            predictionProbabilities = model.predict_proba(X_test_norm)
+        
+            # Creating the base metrics for all classification tasks
+            accuracy = model.score(X_test_norm, y_test)
+            precision, recall, f1, support = precision_recall_fscore_support(y_test, predictions, average='micro')
+            logLoss = log_loss(y_test, predictionProbabilities)
+            
+        scoreResults = pd.Series([accuracy, f1, precision, recall, support, logLoss],
+                                 index=['Accuracy', 'F1', 'Precision', 'Recall', 'Support', 'LogLoss'])
+        
+        # Adding additional classification metrics for binary tasks
+        if len(np.unique(y)) == 2:
+            from sklearn.metrics import roc_auc_score
+            auc = roc_auc_score(y_test, predictionProbabilities)
+            auc = pd.Series(auc, index='AUC')
+            scoreResults = scoreResults.append(auc)
+        
+        return scoreResults
+    
+    
+    # Logistic Regression - http://scikit-learn.org/stable/modules/generated/sklearn.linear_model.LogisticRegression.html
+    from sklearn.linear_model import LogisticRegression
+    lm = LogisticRegression(C=1.0, penalty='l1', n_jobs=-1)
+    lmScore = get_score(lm)
+    
+    # Decision Tree - http://scikit-learn.org/stable/modules/generated/sklearn.tree.DecisionTreeClassifier.html
+    from sklearn.tree import DecisionTreeClassifier
+    dt = DecisionTreeClassifier(criterion='gini', max_depth=None, min_samples_split=2, min_samples_leaf=1)
+    dtScore = get_score(dt)
+    
+    # k-NN - http://scikit-learn.org/stable/modules/generated/sklearn.neighbors.KNeighborsClassifier.html
+    from sklearn.neighbors import KNeighborsClassifier
+    knn = KNeighborsClassifier(n_neighbors=5, n_jobs=-1)
+    knnScore = get_score(knn)
+    
+    # Support Vector Machine - http://scikit-learn.org/stable/modules/generated/sklearn.svm.SVC.html
+    from sklearn.svm import SVC
+    svm = SVC(C=1.0, kernel='rbf', probability=True)
+    svmScore = get_score(svm, norm=True)
+    
+    # Random Forest - http://scikit-learn.org/stable/modules/generated/sklearn.ensemble.RandomForestClassifier.html
+    from sklearn.ensemble import RandomForestClassifier
+    rf = RandomForestClassifier(n_estimators=100, max_depth=None, n_jobs=-1)
+    rfScore = get_score(rf)
+    
+    # Gradient Boosted Tree - http://scikit-learn.org/stable/modules/generated/sklearn.ensemble.GradientBoostingClassifier.html
+    from sklearn.ensemble import GradientBoostingClassifier
+    gbt = GradientBoostingClassifier(n_estimators=100, learning_rate=0.1, max_depth=3)
+    gbtScore = get_score(gbt)
+    
+    # MLP Neural Network - http://scikit-learn.org/stable/modules/generated/sklearn.neural_network.MLPClassifier.html
+    from sklearn.neural_network import MLPClassifier
+    nn = MLPClassifier(hidden_layer_sizes=(100, ), activation='relu', solver='adam', alpha=0.0001,
+                      learning_rate='constant', learning_rate_init=0.001)
+    nnScore = get_score(nn, norm=True)
+    
+    # Putting results into a data frame before plotting
+    results = pd.DataFrame({'LogisticRegression': lmScore, 'DecisionTree': dtScore,
+                            'k-NN': knnScore, 'SVM': svmScore, 'RandomForest': rfScore,
+                            'GradientBoosting': gbtScore, 'nnMLP': nnScore})
+    
+    def plot_results(results, title=None):
+        """
+        Formats the results and plots them
+        """
+        ax = results.plot(kind='barh')
+        ax.spines['right'].set_visible(False)  # Removing the right spine
+        ax.spines['top'].set_visible(False)  # Removing the top spine    
+        plt.legend(loc=(1.04, 0.55))  # Moves the legend outside of the plot
+        plt.title(title)
+        plt.show()
+    
+    
+    # Plotting the evaluation metrics
+    plot_results(results, 'Classification Evaluation Metrics')
+        
+    return results
+    
+    
+initial_classification_test(X, y)
+
 #################################################################################################################
 ### Ensemble Model Importance
 def feature_importance(model):
