@@ -394,7 +394,8 @@ def plot_residuals(model, values, labels):
 plot_residuals(model, X, y)
 
 #################################################################################################################
-### Plotting Learning Curve
+### Plotting Evaluation Charts
+# Learning Curve
 def plot_learning_curve(model, data, labels):
     """
     Plots the learning curve of a model using 3-fold Cross Validation
@@ -420,3 +421,36 @@ def plot_learning_curve(model, data, labels):
     
 
 plot_learning_curve(model, X, y)
+
+
+# Validation Curve
+def plot_validation_curve(model, data, labels, param_name, param_values):
+    """
+    Plots the validation curve of a model using 3-fold Cross Validation
+    """
+    from sklearn.model_selection import validation_curve
+    validationCurve = validation_curve(model, X, y, cv=3, param_name=param_name,
+                                       param_range=param_values, n_jobs=-1)
+
+    trainScores = validationCurve[0].mean(axis=1)
+    testScores = validationCurve[1].mean(axis=1)
+
+    # Putting the results into a dataframe before plotting
+    results = pd.DataFrame({'Training Set': trainScores, 'Testing Set': testScores}, 
+                           index=param_values)
+    
+    # Plotting the curve
+    ax = results.plot(figsize=(10, 6), linestyle='-', marker='o')
+    plt.title('Validation Curve')
+    plt.xlabel(param_name)
+    plt.ylabel('Cross Validation Score')
+    ax.spines['right'].set_visible(False)  # Removing the right spine
+    ax.spines['top'].set_visible(False)  # Removing the top spine    
+    plt.legend(loc=(1.04, 0.55))  # Moves the legend outside of the plot
+    plt.show()
+    
+
+param_name = 'n_estimators'
+param_range = [10, 30, 100, 300]
+
+plot_validation_curve(model, X, y, param_name, param_range)
