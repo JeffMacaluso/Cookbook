@@ -232,6 +232,7 @@ def initial_regression_test(X, y):
 initial_regression_test(X, y)
 
 # Classification
+# Classification
 def initial_classification_test(X, y):
     """
     Tests multiple classification models and gathers performance from cross-validation with a holdout set
@@ -254,10 +255,14 @@ def initial_classification_test(X, y):
         http://scikit-learn.org/stable/modules/model_evaluation.html#classification-metrics
         """
         from sklearn.metrics import precision_recall_fscore_support, log_loss, hinge_loss
+        import time
 
+        startTime = time.time()  # Getting training time
+        
         # Fits with either regular or normalized training set
         if norm == False:
             model.fit(X_train, y_train)
+            totalTime = time.time() - startTime
             predictions = model.predict(X_test)
             predictionProbabilities = model.predict_proba(X_test)
         
@@ -267,6 +272,7 @@ def initial_classification_test(X, y):
             logLoss = log_loss(y_test, predictionProbabilities)
         else:
             model.fit(X_train_norm, y_train)
+            totalTime = time.time() - startTime
             predictions = model.predict(X_test_norm)
             predictionProbabilities = model.predict_proba(X_test_norm)
         
@@ -275,8 +281,9 @@ def initial_classification_test(X, y):
             precision, recall, f1, support = precision_recall_fscore_support(y_test, predictions, average='micro')
             logLoss = log_loss(y_test, predictionProbabilities)
             
-        scoreResults = pd.Series([accuracy, f1, precision, recall, support, logLoss],
-                                 index=['Accuracy', 'F1', 'Precision', 'Recall', 'Support', 'LogLoss'])
+        scoreResults = pd.Series([accuracy, f1, precision, recall, support, logLoss, totalTime],
+                                 index=['Accuracy', 'F1', 'Precision', 'Recall', 'Support', 'LogLoss',
+                                        'TrainingTime(sec)'])
         
         # Adding additional classification metrics for binary tasks
         if len(np.unique(y)) == 2:
@@ -342,7 +349,7 @@ def initial_classification_test(X, y):
     
     
     # Plotting the evaluation metrics
-    plot_results(results, 'Classification Evaluation Metrics')
+    plot_results(results.drop('TrainingTime(sec)', axis=1), 'Classification Evaluation Metrics')
         
     return results
     
