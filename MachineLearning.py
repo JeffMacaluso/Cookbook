@@ -36,6 +36,9 @@ profile.to_file(outputfile="/tmp/myoutputfile.html")  # Saving report as a file
 # One-hot encoding multiple columns
 df_encoded = pd.get_dummies(df, columns=['a', 'b', 'c'], drop_first=True)
 
+# Converting a categorical column to numbers
+df['TargetVariable'].astype('category').cat.codes
+
 #################################################################################################################
 # Normalizing
 from sklearn import preprocessing
