@@ -5,11 +5,11 @@ import pandas as pd
 import matplotlib.pyplot as plt
 import seaborn as sns
 
+print(time.strftime('%Y/%m/%d %H:%M'))
 print('OS: ', sys.platform)
 print('Python: ', sys.version)
 print('NumPy: ', np.__version__)
 print('Pandas: ', pd.__version__)
-print(time.strftime('%Y/%m/%d %H:%M'))
 
 # Formatting for seaborn plots
 sns.set_context('notebook', font_scale=1.1)
