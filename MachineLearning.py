@@ -20,10 +20,20 @@ pd.set_option('display.max_columns', None)
 
 %matplotlib inline
 
-#################################################################################################################
-### Missing Values
 
-# Examining missing values
+#################################################################################################################
+##### Exploratory Data Analysis
+
+# Quick EDA report on dataframe
+import pandas_profiling
+profile = pandas_profiling.ProfileReport(df)
+profile.get_rejected_variables(threshold=0.9)  # Rejected variables w/ high correlation
+profile.to_file(outputfile='/tmp/myoutputfile.html')  # Saving report as a file
+
+#################################################################################################################
+##### Missing Values
+
+# Plotting missing values
 import missingno as msno  # Visualizes missing values
 msno.matrix(df)
 msno.heatmap(df)  # Co-occurrence of missing values
@@ -38,26 +48,21 @@ df.fillna(value=df.mean(), inplace=True)
 df.fillna(method='ffill', inplace=True)  #'backfill' for interpolating the other direction
 
 #################################################################################################################
-### Quick EDA report on dataframe
-import pandas_profiling
-profile = pandas_profiling.ProfileReport(df)
-profile.get_rejected_variables(threshold=0.9)  # Rejected variables w/ high correlation
-profile.to_file(outputfile='/tmp/myoutputfile.html')  # Saving report as a file
+##### Preprocessing
 
-#################################################################################################################
-### Preprocessing
 # One-hot encoding multiple columns
 df_encoded = pd.get_dummies(df, columns=['a', 'b', 'c'], drop_first=True)
 
 # Converting a categorical column to numbers
 df['TargetVariable'].astype('category').cat.codes
 
-#################################################################################################################
 # Normalizing
 from sklearn import preprocessing
 X_norm = preprocessing.normalize(X, norm='max', axis=0)  # Normalizing across columns
 
-### Cross Validation
+#################################################################################################################
+##### Cross Validation
+
 # Holdout method
 from sklearn.model_selection import train_test_split
 X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.30, random_state=46)
@@ -68,7 +73,21 @@ k_fold = KFold(n_splits=10, shuffle=True, random_state=46)
 cross_val_score(model, X, y, cv=k_fold, n_jobs=-1)
 
 #################################################################################################################
-### Probability Threshold Search - xgboost
+##### Hyperparameter and model tuning 
+
+### Hyperparameter Tuning
+# Grid search
+from sklearn.model_selection import GridSearchCV
+parameters = {'kernel': ('linear', 'rbf'), 'C': [1, 10]}
+svc = svm.SVC()
+clf = GridSearchCV(svc, parameters)
+clf.fit(X, y)
+print(clf.best_estimator_, '\n', 
+      clf.best_params_, '\n', 
+      clf.best_score_)
+
+### Class Probability Cutoffs
+# Probability Threshold Search - xgboost
 cv = cross_validation.KFold(len(X), n_folds=5, shuffle=True, random_state=46)
 
 # Making a dataframe to store results of various iterations
@@ -104,8 +123,8 @@ for traincv, testcv in cv:
 print('The Model performace is:')
 print(xgbResults.mean())
 
-#################################################################################################################
-### Probability Threshold Search - scikit-learn
+
+# Probability Threshold Search - scikit-learn
 predicted = model.predict_proba(X_test)[:, 1]
 expected = y_test
 
@@ -123,18 +142,8 @@ best_index = list(result['f1']).index(max(results['f1']))
 print(results.ix[best_index])
 
 #################################################################################################################
-### Grid search
-from sklearn.model_selection import GridSearchCV
-parameters = {'kernel': ('linear', 'rbf'), 'C': [1, 10]}
-svc = svm.SVC()
-clf = GridSearchCV(svc, parameters)
-clf.fit(X, y)
-print(clf.best_estimator_, '\n', 
-      clf.best_params_, '\n', 
-      clf.best_score_)
+##### Basic model performance testing
 
-#################################################################################################################
-### Basic model performance
 # Regression
 def initial_regression_test(X, y):
     """
@@ -244,7 +253,7 @@ def initial_regression_test(X, y):
     
 initial_regression_test(X, y)
 
-# Classification
+
 # Classification
 def initial_classification_test(X, y):
     """
@@ -368,27 +377,11 @@ def initial_classification_test(X, y):
     
     
 initial_classification_test(X, y)
-
-#################################################################################################################
-### Ensemble Model Importance
-def feature_importance(model):
-    """
-    Plots the feature importance for an ensemble model
-    """
-    feature_importance = model.feature_importances_
-    feature_importance = 100.0 * (feature_importance / feature_importance.max())
-    sorted_idx = np.argsort(feature_importance)
-    pos = np.arange(sorted_idx.shape[0]) + .5
-    plt.figure(figsize=(15, 15))
-    plt.subplot(1, 2, 2)
-    plt.barh(pos, feature_importance[sorted_idx], align='center')
-    plt.yticks(pos, X.columns[sorted_idx])
-    plt.xlabel('Relative Importance')
-    plt.title('Variable Importance')
-    plt.show()
    
 #################################################################################################################
-### Plotting residuals
+##### Evaluation Plots
+
+# Residuals
 def plot_residuals(model, values, labels):
     """
     Creates two plots: Actual vs. Predicted and Residuals
@@ -416,8 +409,7 @@ def plot_residuals(model, values, labels):
     
 plot_residuals(model, X, y)
 
-#################################################################################################################
-### Plotting Evaluation Charts
+
 # Learning Curve
 def plot_learning_curve(model, data, labels):
     """
@@ -477,3 +469,21 @@ param_name = 'n_estimators'
 param_range = [10, 30, 100, 300]
 
 plot_validation_curve(model, X, y, param_name, param_range)
+
+
+# Ensemble Model Importance
+def feature_importance(model):
+    """
+    Plots the feature importance for an ensemble model
+    """
+    feature_importance = model.feature_importances_
+    feature_importance = 100.0 * (feature_importance / feature_importance.max())
+    sorted_idx = np.argsort(feature_importance)
+    pos = np.arange(sorted_idx.shape[0]) + .5
+    plt.figure(figsize=(15, 15))
+    plt.subplot(1, 2, 2)
+    plt.barh(pos, feature_importance[sorted_idx], align='center')
+    plt.yticks(pos, X.columns[sorted_idx])
+    plt.xlabel('Relative Importance')
+    plt.title('Variable Importance')
+    plt.show()
