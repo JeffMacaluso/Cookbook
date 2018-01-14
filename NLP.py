@@ -1,10 +1,12 @@
 import sys
+import time
 import re
 import nltk
 
-print("OS: ", sys.platform)
-print("Python: ", sys.version)
+print('OS: ', sys.platform)
+print('Python: ', sys.version)
 print('NLTK: ', nltk.__version__)
+print(time.strftime('%Y/%m/%d %H:%M'))
 
 ### Tokenizing
 tokenizer = nltk.tokenize.RegexpTokenizer(r'\w+')  # By blank space
