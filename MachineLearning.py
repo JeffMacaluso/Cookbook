@@ -47,6 +47,70 @@ df.fillna(value=df.mean(), inplace=True)
 # Filling missing values with interpolation
 df.fillna(method='ffill', inplace=True)  #'backfill' for interpolating the other direction
 
+# Filling missing values with a predictive model
+def predict_missing_values(data, column, correlationThresh=0.5, cross_validations=3):
+    """
+    Fills missing values using a random forest regression on highly correlated columns
+    Returns a series of the column with missing values filled
+    
+    To-do: - Add the option to specify columns to use for predictions
+           - Add the option for categorical columns
+           - Look into other options for handling missing predictors
+    """
+    from sklearn.model_selection import cross_val_score
+    from sklearn.ensemble import RandomForestRegressor
+    
+    # Multi-threading if the dataset is a size where doing so is beneficial
+    if data.shape[0] < 100000:
+        num_cores = 1  # Single-thread
+    else:
+        num_cores = -1  # All available cores
+    
+    # Instantiating the model
+    rfImputer = RandomForestRegressor(n_estimators=100, n_jobs=num_cores)
+    
+    # Calculating the highly correlated columns to use for the model
+    highlyCorrelated = abs(data.corr()[inputColumn]) >= correlationThresh
+    highlyCorrelated = data[data.columns[highlyCorrelated]]
+    highlyCorrelated = highlyCorrelated.dropna(how='any')  # Drops any missing records
+    
+    # Creating the X/y objects to use for the
+    y = highlyCorrelated[column]
+    X = highlyCorrelated.drop(column, axis=1)
+    
+    # Evaluating the effectiveness of the model
+    cvScore = np.mean(cross_val_score(rfImputer, X, y, cv=cross_validations, n_jobs=num_cores))
+    print('Cross Validation Score:', cvScore)
+
+    # Fitting the model for predictions
+    rfImputer.fit(X, y)
+    print('R^2:', rfImputer.score(X, y))
+    
+    # Re-filtering the dataset down to highly correlated columns
+    # Filling NA predictors w/ columnar mean instead of removing
+    X_missing = data[highlyCorrelated.columns]
+    X_missing = X_missing.drop(column, axis=1)
+    X_missing = X_missing.fillna(X_missing.mean())
+    
+    # Filtering to rows with missing values before generating predictions
+    missingIndexes = data[data[column].isnull()].index
+    X_missing = X_missing.iloc[missingIndexes]
+    
+    # Predicting the missing values
+    predictions = rfImputer.predict(X_missing)
+    
+    # Preventing overwriting of original dataframe
+    data = data.copy()
+
+    # Looping through the missing values and replacing with predictions
+    for i, idx in enumerate(missingIndexes):
+        data.set_value(idx, column, predictions[i])
+    
+    return data[column]
+    
+    
+df[colName] = predict_missing_values(df, colName)
+
 #################################################################################################################
 ##### Preprocessing
 
