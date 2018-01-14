@@ -21,10 +21,21 @@ pd.set_option('display.max_columns', None)
 %matplotlib inline
 
 #################################################################################################################
-### Checking Missing Values
+### Missing Values
+
+# Examining missing values
 import missingno as msno  # Visualizes missing values
 msno.matrix(df)
 msno.heatmap(df)  # Co-occurrence of missing values
+
+# Drop missing values
+df.dropna(how='any', thresh=None, inplace=True)  # Also 'all' for how, and thresh is an int
+
+# Filling missing values with columnar means
+df.fillna(value=df.mean(), inplace=True)
+
+# Filling missing values with interpolation
+df.fillna(method='ffill', inplace=True)  #'backfill' for interpolating the other direction
 
 #################################################################################################################
 ### Quick EDA report on dataframe
