@@ -1,17 +1,19 @@
 import sys
+import time
 import numpy as np
 import pandas as pd
 import matplotlib.pyplot as plt
 import seaborn as sns
 
-print("OS: ", sys.platform)
-print("Python: ", sys.version)
-print("NumPy: ", np.__version__)
-print("Pandas: ", pd.__version__)
+print('OS: ', sys.platform)
+print('Python: ', sys.version)
+print('NumPy: ', np.__version__)
+print('Pandas: ', pd.__version__)
+print(time.strftime('%Y/%m/%d %H:%M'))
 
 # Formatting for seaborn plots
-sns.set_context("notebook", font_scale=1.1)
-sns.set_style("ticks")
+sns.set_context('notebook', font_scale=1.1)
+sns.set_style('ticks')
 
 # Displays all dataframe columns
 pd.set_option('display.max_columns', None)
@@ -29,7 +31,7 @@ msno.heatmap(df)  # Co-occurrence of missing values
 import pandas_profiling
 profile = pandas_profiling.ProfileReport(df)
 profile.get_rejected_variables(threshold=0.9)  # Rejected variables w/ high correlation
-profile.to_file(outputfile="/tmp/myoutputfile.html")  # Saving report as a file
+profile.to_file(outputfile='/tmp/myoutputfile.html')  # Saving report as a file
 
 #################################################################################################################
 ### Preprocessing
@@ -64,7 +66,7 @@ accuracy, precision, recall, f1 = [], [], [], []
 
 # Parameters for the model
 num_rounds = 8000
-params = {'booster': 'gbtree', 'max_depth': 4, 'eta': 0.001, 'objective': "binary:logistic"}
+params = {'booster': 'gbtree', 'max_depth': 4, 'eta': 0.001, 'objective': 'binary:logistic'}
 
 for traincv, testcv in cv:
     
@@ -88,7 +90,7 @@ for traincv, testcv in cv:
     bestTempResults = {'probabilityThreshold': temporaryResults.ix[bestIndex][0], 'f1': temporaryResults.ix[bestIndex][1]}
     xgbResults = xgbResults.append(bestTempResults, ignore_index=True)    
 
-print("The Model performace is:")
+print('The Model performace is:')
 print(xgbResults.mean())
 
 #################################################################################################################
