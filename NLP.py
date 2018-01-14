@@ -3,10 +3,10 @@ import time
 import re
 import nltk
 
+print(time.strftime('%Y/%m/%d %H:%M'))
 print('OS: ', sys.platform)
 print('Python: ', sys.version)
 print('NLTK: ', nltk.__version__)
-print(time.strftime('%Y/%m/%d %H:%M'))
 
 ### Tokenizing
 tokenizer = nltk.tokenize.RegexpTokenizer(r'\w+')  # By blank space
