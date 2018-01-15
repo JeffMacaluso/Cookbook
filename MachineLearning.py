@@ -231,10 +231,14 @@ def initial_regression_test(X, y):
         Fits the model and returns a series containing the RMSE, MAE, and R^2
         """
         from sklearn.metrics import mean_squared_error, mean_absolute_error
+        import time
+
+        startTime = time.time()  # Getting training time
         
         # Fits with either regular or normalized training set
         if norm == False:
             model.fit(X_train, y_train)
+            totalTime = time.time() - startTime
             predictions = model.predict(X_test)
         
             r2 = model.score(X_test, y_test)
@@ -242,13 +246,14 @@ def initial_regression_test(X, y):
             mae = mean_absolute_error(y_test, predictions)
         else:
             model.fit(X_train_norm, y_train)
+            totalTime = time.time() - startTime
             predictions = model.predict(X_test_norm)
         
             r2 = model.score(X_test_norm, y_test)
             rmse = np.sqrt(mean_squared_error(y_test, predictions))
             mae = mean_absolute_error(y_test, predictions)
             
-        score_results = pd.Series([r2, rmse, mae], index=['R^2', 'RMSE', 'MAE'])
+        score_results = pd.Series([r2, rmse, mae, totalTime], index=['R^2', 'RMSE', 'MAE', 'TrainingTime(sec)'])
         
         return score_results
     
