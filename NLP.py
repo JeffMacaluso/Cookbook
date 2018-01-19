@@ -1,9 +1,11 @@
 import sys
+import time
 import re
 import nltk
 
-print("OS: ", sys.platform)
-print("Python: ", sys.version)
+print(time.strftime('%Y/%m/%d %H:%M'))
+print('OS: ', sys.platform)
+print('Python: ', sys.version)
 print('NLTK: ', nltk.__version__)
 
 ### Tokenizing
