@@ -54,11 +54,10 @@ def predict_missing_values(data, column, correlationThresh=0.5, cross_validation
     Returns a series of the column with missing values filled
     
     To-do: - Add the option to specify columns to use for predictions
-           - Add the option for categorical columns
            - Look into other options for handling missing predictors
     """
     from sklearn.model_selection import cross_val_score
-    from sklearn.ensemble import RandomForestRegressor
+    from sklearn import ensemble
     
     # Multi-threading if the dataset is a size where doing so is beneficial
     if data.shape[0] < 100000:
@@ -67,10 +66,16 @@ def predict_missing_values(data, column, correlationThresh=0.5, cross_validation
         num_cores = -1  # All available cores
     
     # Instantiating the model
-    rfImputer = RandomForestRegressor(n_estimators=100, n_jobs=num_cores)
+    num_unique_values = len(np.unique(data[column]))
+    if num_unique_values > 25 or df[column].dtype != 'category':
+        print('Variable is continuous')
+        rfImputer = ensemble.RandomForestRegressor(n_estimators=100, n_jobs=num_cores)
+    else:
+        print('Variable is categorical with {0} classes').format(num_unique_values)
+        rfImputer = ensemble.RandomForestClassifier(n_estimators=100, n_jobs=num_cores)
     
     # Calculating the highly correlated columns to use for the model
-    highlyCorrelated = abs(data.corr()[inputColumn]) >= correlationThresh
+    highlyCorrelated = abs(data.corr()[column]) >= correlationThresh
     highlyCorrelated = data[data.columns[highlyCorrelated]]
     highlyCorrelated = highlyCorrelated.dropna(how='any')  # Drops any missing records
     
