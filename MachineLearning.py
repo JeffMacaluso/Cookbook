@@ -445,7 +445,7 @@ def initial_classification_test(X, y):
     
     
     # Plotting the evaluation metrics
-    plot_results(results.drop('TrainingTime(sec)', axis=1), 'Classification Evaluation Metrics')
+    plot_results(results.drop('TrainingTime(sec)', axis=0), 'Classification Evaluation Metrics')
         
     return results
     
