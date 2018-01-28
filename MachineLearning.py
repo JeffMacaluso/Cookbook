@@ -151,9 +151,9 @@ parameters = {'kernel': ('linear', 'rbf'), 'C': [1, 10]}
 svc = svm.SVC()
 clf = GridSearchCV(svc, parameters)
 clf.fit(X, y)
-print(clf.best_estimator_, '\n', 
-      clf.best_params_, '\n', 
-      clf.best_score_)
+print('Best Estimator:', clf.best_estimator_, '\n', 
+      'Best Parameters:', clf.best_params_, '\n', 
+      'Best Score:', clf.best_score_)
 
 ### Class Probability Cutoffs
 # Probability Threshold Search - xgboost
