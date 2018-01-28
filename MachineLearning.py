@@ -194,22 +194,29 @@ print(xgbResults.mean())
 
 
 # Probability Threshold Search - scikit-learn
+from sklearn import metrics
+
 predicted = model.predict_proba(X_test)[:, 1]
 expected = y_test
 
 # Creating an empty dataframe to fill
 results = pd.DataFrame(columns=['threshold', 'f1'])
 
-# Looping trhough different probability thresholds
+# Setting f1 score average metric based on binary or multi-class classification
+if len(np.unique(y_test)) == 2:
+    avg = 'binary'
+else:
+    avg = 'micro'
+
+# Looping through different probability thresholds
 for thresh in np.arange(0, 30000):
     pred_bin = pd.Series(predicted).apply(lambda x: 1 if x > (thresh / 100000) else 0)
-    f1 = metrics.f1_score(expected, pred_bin)
-    tempResults = {'threshold': (thresh / 100000), 'f1': metrics.f1_score(pred_bin, y_test)}
-    results = results.append(tempResults, ignore_index = True)
+    f1 = metrics.f1_score(expected, pred_bin, average=avg)
+    tempResults = {'threshold': (thresh / 100000), 'f1': metrics.f1_score(pred_bin, y_test, average=avg)}
+    results = results.append(tempResults, ignore_index=True)
     
-best_index = list(result['f1']).index(max(results['f1']))
-print(results.ix[best_index])
-
+best_index = list(results['f1']).index(max(results['f1']))
+print(results.iloc[best_index])
 #################################################################################################################
 ##### Basic model performance testing
 
