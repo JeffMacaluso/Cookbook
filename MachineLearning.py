@@ -194,29 +194,45 @@ print(xgbResults.mean())
 
 
 # Probability Threshold Search - scikit-learn
-from sklearn import metrics
-
-predicted = model.predict_proba(X_test)[:, 1]
-expected = y_test
-
-# Creating an empty dataframe to fill
-results = pd.DataFrame(columns=['threshold', 'f1'])
-
-# Setting f1 score average metric based on binary or multi-class classification
-if len(np.unique(y_test)) == 2:
-    avg = 'binary'
-else:
-    avg = 'micro'
-
-# Looping through different probability thresholds
-for thresh in np.arange(0, 30000):
-    pred_bin = pd.Series(predicted).apply(lambda x: 1 if x > (thresh / 100000) else 0)
-    f1 = metrics.f1_score(expected, pred_bin, average=avg)
-    tempResults = {'threshold': (thresh / 100000), 'f1': metrics.f1_score(pred_bin, y_test, average=avg)}
-    results = results.append(tempResults, ignore_index=True)
+def optimal_probability_cutoff(model, test_dataset, test_labels, max_thresh=0.3):
+    """
+    Finds the optimal probability cutoff to maximize the F1 score
+    Returns the optimal probability cutoff, F1 score, and a plot of the results
     
-best_index = list(results['f1']).index(max(results['f1']))
-print(results.iloc[best_index])
+    To-do: - Add other scores to optimize for (precision, recall, etc.)
+           - Add more step sizes for probability threshold sweep
+    """
+    from sklearn import metrics
+
+    # Prediction probabilities of the test dataset
+    predicted = model.predict_proba(test_dataset)[:, 1]
+
+    # Creating an empty dataframe to fill with probability cutoff thresholds and f1 scores
+    results = pd.DataFrame(columns=['threshold', 'f1'])
+
+    # Setting f1 score average metric based on binary or multi-class classification
+    if len(np.unique(test_labels)) == 2:
+        avg = 'binary'
+    else:
+        avg = 'micro'
+
+    # Looping trhough different probability thresholds
+    for thresh in np.arange(0, (max_thresh*100000)):
+        pred_bin = pd.Series(predicted).apply(lambda x: 1 if x > (thresh / 100000) else 0)
+        f1 = metrics.f1_score(expected, pred_bin, average=avg)
+        tempResults = {'threshold': (thresh / 100000), 'f1': metrics.f1_score(pred_bin, test_labels, average=avg)}
+        results = results.append(tempResults, ignore_index=True)
+    
+    # Plotting the F1 score throughout different probability thresholds
+    results.plot(x='threshold', y='f1')
+    plt.title('F1 Score by Probability Cutoff Threshold')
+    
+    best_index = list(results['f1']).index(max(results['f1']))
+    print('Threshold for optimal F1 Score:')
+    return results.iloc[best_index]
+
+
+optimal_probability_cutoff(model, X_test, y_test)
 #################################################################################################################
 ##### Basic model performance testing
 
