@@ -208,7 +208,7 @@ def optimal_probability_cutoff(model, test_dataset, test_labels, max_thresh=0.3)
     predicted = model.predict_proba(test_dataset)[:, 1]
 
     # Creating an empty dataframe to fill with probability cutoff thresholds and f1 scores
-    results = pd.DataFrame(columns=['threshold', 'f1'])
+    results = pd.DataFrame(columns=['Threshold', 'F1 Score'])
 
     # Setting f1 score average metric based on binary or multi-class classification
     if len(np.unique(test_labels)) == 2:
@@ -220,15 +220,15 @@ def optimal_probability_cutoff(model, test_dataset, test_labels, max_thresh=0.3)
     for thresh in np.arange(0, (max_thresh*100000)):
         pred_bin = pd.Series(predicted).apply(lambda x: 1 if x > (thresh / 100000) else 0)
         f1 = metrics.f1_score(expected, pred_bin, average=avg)
-        tempResults = {'threshold': (thresh / 100000), 'f1': f1}
+        tempResults = {'Threshold': (thresh / 100000), 'f1': f1}
         results = results.append(tempResults, ignore_index=True)
     
     # Plotting the F1 score throughout different probability thresholds
-    results.plot(x='threshold', y='f1')
+    results.plot(x='Threshold', y='F1 Score')
     plt.title('F1 Score by Probability Cutoff Threshold')
     
-    best_index = list(results['f1']).index(max(results['f1']))
-    print('Threshold for optimal F1 Score:')
+    best_index = list(results['F1 Score']).index(max(results['F1 Score']))
+    print('Threshold for Optimal F1 Score:')
     return results.iloc[best_index]
 
 
