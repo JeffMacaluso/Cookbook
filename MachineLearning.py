@@ -220,7 +220,7 @@ def optimal_probability_cutoff(model, test_dataset, test_labels, max_thresh=0.3)
     for thresh in np.arange(0, (max_thresh*100000)):
         pred_bin = pd.Series(predicted).apply(lambda x: 1 if x > (thresh / 100000) else 0)
         f1 = metrics.f1_score(expected, pred_bin, average=avg)
-        tempResults = {'threshold': (thresh / 100000), 'f1': metrics.f1_score(pred_bin, test_labels, average=avg)}
+        tempResults = {'threshold': (thresh / 100000), 'f1': f1}
         results = results.append(tempResults, ignore_index=True)
     
     # Plotting the F1 score throughout different probability thresholds
