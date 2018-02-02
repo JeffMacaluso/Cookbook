@@ -194,13 +194,10 @@ print(xgbResults.mean())
 
 
 # Probability Threshold Search - scikit-learn
-def optimal_probability_cutoff(model, test_dataset, test_labels, max_thresh=0.3):
+def optimal_probability_cutoff(model, test_dataset, test_labels, max_thresh=0.3, step_size=0.01):
     """
     Finds the optimal probability cutoff to maximize the F1 score
     Returns the optimal probability cutoff, F1 score, and a plot of the results
-    
-    To-do: - Add other scores to optimize for (precision, recall, etc.)
-           - Add more step sizes for probability threshold sweep
     """
     from sklearn import metrics
 
@@ -217,12 +214,12 @@ def optimal_probability_cutoff(model, test_dataset, test_labels, max_thresh=0.3)
         avg = 'micro'
 
     # Looping trhough different probability thresholds
-    for thresh in np.arange(0, (max_thresh*100000)):
-        pred_bin = pd.Series(predicted).apply(lambda x: 1 if x > (thresh / 100000) else 0)
-        f1 = metrics.f1_score(expected, pred_bin, average=avg)
-        tempResults = {'Threshold': (thresh / 100000), 'f1': f1}
+    for thresh in np.arange(0, (max_thresh+step_size), step_size):
+        pred_bin = pd.Series(predicted).apply(lambda x: 1 if x > thresh else 0)
+        f1 = metrics.f1_score(test_labels, pred_bin, average=avg)
+        tempResults = {'Threshold': thresh, 'F1 Score': f1}
         results = results.append(tempResults, ignore_index=True)
-    
+        
     # Plotting the F1 score throughout different probability thresholds
     results.plot(x='Threshold', y='F1 Score')
     plt.title('F1 Score by Probability Cutoff Threshold')
