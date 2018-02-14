@@ -42,6 +42,7 @@ for row in df['tokens']:
 
 ### TF-IDF
 # Creating the sklearn object
+from sklearn.feature_extraction import text as sktext
 tfidf = sktext.TfidfVectorizer(smooth_idf=False)
 
 # Transforming our 'tokens' column into a TF-IDF matrix and then a data frame
