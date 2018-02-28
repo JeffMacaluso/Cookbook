@@ -86,6 +86,7 @@ def predict_missing_values(data, column, correlationThresh=0.5, cross_validation
         num_cores = -1  # All available cores
     
     # Instantiating the model
+    # Picking a classification model if the number of unique labels are 25 or under
     num_unique_values = len(np.unique(data[column]))
     if num_unique_values > 25 or df[column].dtype != 'category':
         print('Variable is continuous')
@@ -113,9 +114,12 @@ def predict_missing_values(data, column, correlationThresh=0.5, cross_validation
     cvScore = np.mean(cross_val_score(rfImputer, X, y, cv=cross_validations, n_jobs=num_cores))
     print('Cross Validation Score:', cvScore)
 
-    # Fitting the model for predictions
+    # Fitting the model for predictions and displaying initial results
     rfImputer.fit(X, y)
-    print('R^2:', rfImputer.score(X, y))
+    if num_unique_values > 25 or df[column].dtype != 'category':
+        print('R^2:', rfImputer.score(X, y))
+    else:
+        print('Accuracy:', rfImputer.score(X, y))
     
     # Re-filtering the dataset down to highly correlated columns
     # Filling NA predictors w/ columnar mean instead of removing
