@@ -65,7 +65,7 @@ df.fillna(method='ffill', inplace=True)  #'backfill' for interpolating the other
 # Filling missing values with a predictive model
 def predict_missing_values(data, column, correlationThresh=0.5, cross_validations=3):
     """
-    Fills missing values using a random forest regression on highly correlated columns
+    Fills missing values using a random forest model on highly correlated columns
     Returns a series of the column with missing values filled
     
     To-do: - Add the option to specify columns to use for predictions
@@ -73,6 +73,11 @@ def predict_missing_values(data, column, correlationThresh=0.5, cross_validation
     """
     from sklearn.model_selection import cross_val_score
     from sklearn import ensemble
+    
+    # Printing number of percentage values missing
+    pctMissing = data[column].isnull().values.sum() / data.shape[0]
+    print('Predicting missing values for {0}\n'.format(column))
+    print('Percentage missing: {0:.2f}%'.format(pctMissing*100))
     
     # Multi-threading if the dataset is a size where doing so is beneficial
     if data.shape[0] < 100000:
@@ -91,8 +96,14 @@ def predict_missing_values(data, column, correlationThresh=0.5, cross_validation
     
     # Calculating the highly correlated columns to use for the model
     highlyCorrelated = abs(data.corr()[column]) >= correlationThresh
+    
+    # Exiting the function if there are not any highly correlated columns found
+    if highlyCorrelated.sum() < 2:  # Will always be 1 because of correlation with self
+        print('Error: No correlated variables found. Re-try with less a lower correlation threshold')
+        return  # Exits the function
     highlyCorrelated = data[data.columns[highlyCorrelated]]
     highlyCorrelated = highlyCorrelated.dropna(how='any')  # Drops any missing records
+    print('Using {0} highly correlated features for predictions\n'.format(highlyCorrelated.shape[1]))
     
     # Creating the X/y objects to use for the
     y = highlyCorrelated[column]
@@ -127,7 +138,7 @@ def predict_missing_values(data, column, correlationThresh=0.5, cross_validation
         data.set_value(idx, column, predictions[i])
     
     return data[column]
-    
+
     
 df[colName] = predict_missing_values(df, colName)
 
