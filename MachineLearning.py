@@ -116,7 +116,7 @@ def predict_missing_values(data, column, correlationThresh=0.5, cross_validation
 
     # Fitting the model for predictions and displaying initial results
     rfImputer.fit(X, y)
-    if num_unique_values > 25 or df[column].dtype != 'category':
+    if num_unique_values > 25 or data[column].dtype.name != 'category':
         print('R^2:', rfImputer.score(X, y))
     else:
         print('Accuracy:', rfImputer.score(X, y))
