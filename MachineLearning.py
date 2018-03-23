@@ -362,7 +362,105 @@ def initial_classification_test(X, y):
     
     
 initial_classification_test(X, y)
-   
+
+##### Assumption Testing
+# Linear Regression - In Progress
+def linear_regression_assumptions(model, data, labels):
+    """
+    Tests a linear regression on the model to see if assumptions are being met
+    """
+
+    # Creating predictions and calculating residuals
+    predictions = model.predict(data)
+    df_results = pd.DataFrame({'Actual': labels, 'Predicted': predictions})
+    df_results['Residuals'] = abs(df_results['Actual']) - abs(df_results['Predicted'])
+
+    
+    def linear_assumption():
+        """
+        Linearity: Assumes that a linear regression model will fit the data. If not,
+                   either a quadratic term or another algorithm should be used.
+        """
+        print('Assumption 1: Linear Relationship between the Target and the Features')
+        
+        print('Checking with a scatter plot of actual vs. predicted. Predictions should follow the line.')
+        
+        # Plotting the actual vs predicted
+        sns.lmplot(x='Actual', y='Predicted', data=df_results, fit_reg=False, size=5)
+        plt.plot(np.arange(0, df_results.max().max()), color='darkorange', linestyle='--')
+        plt.title('Actual vs. Predicted')
+        plt.show()
+        
+    def multivariate_normal_assumption():
+        """
+        
+        """
+        print('\nAssumption 2: All variables are multivariate normal')
+        
+    def multicollinearity_assumption():
+        """
+        
+        """
+        from statsmodels.stats.outliers_influence import variance_inflation_factor
+        print('\nAssumption 3: Little to no multicollinearity among predictors')
+        
+        ax = plt.subplot(111)
+        sns.heatmap(pd.DataFrame(X).corr())
+        plt.show()
+        
+        print('Variance Inflation Factors (VIF)')
+        print('> 10: An indication that multicollinearity may be present')
+        print('> 100: Certain multicollinearity among the variables')
+        print('-------------------------------------')
+        VIF = [variance_inflation_factor(X, i) for i in range(X.shape[1])]
+        [print(vif) for vif in VIF]
+        
+        possible_multicollinearity = sum([1 for vif in VIF if vif > 10])
+        definite_multicollinearity = sum([1 for vif in VIF if vif > 100])
+        print()
+        print('{0} cases of possible multicollinearity'.format(possible_multicollinearity))
+        print('{0} cases of definite multicollinearity'.format(definite_multicollinearity))
+        
+        
+    def autocorrelation_assumption():
+        """
+        
+        """
+        from statsmodels.stats.stattools import durbin_watson
+        print('\nAssumption 4: No Autocorrelation')
+        print('\nPerforming Durbin-Watson Test')
+        print('Values of 1.5 < d < 2.5 generally show that there is no auto-correlation in the data')
+        print('0 to <2 is positive autocorrelation')
+        print('>2 to 4 is negative autocorrelation')
+        print('-------------------------------------')
+        durbinWatson = durbin_watson(df_results['Residuals'])
+        print('Durbin-Watson:', durbinWatson)
+        
+    def homoscedasticity_assumption():
+        """
+        Homoscedasticity: Assumes that the errors exhibit constant variance
+        """
+        print('\nAssumption 5: Homoscedasticity of Error Terms')
+        
+        # Plotting the residuals
+        ax = plt.subplot(111)
+        plt.scatter(x=df_results.index, y=df_results.Residuals, alpha=0.5)
+        plt.plot(np.repeat(0, df_results.index.max()), color='darkorange', linestyle='--')
+        ax.spines['right'].set_visible(False)  # Removing the right spine
+        ax.spines['top'].set_visible(False)  # Removing the top spine
+        plt.title('Residuals')
+        plt.show()  
+        
+    linear_assumption()
+    multivariate_normal_assumption()
+    multicollinearity_assumption()
+    autocorrelation_assumption()
+    homoscedasticity_assumption()
+
+
+linear_regression_assumptions(lr, X, y)
+
+
 #################################################################################################################
 ##### Evaluation Plots
 
