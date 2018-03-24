@@ -365,11 +365,28 @@ initial_classification_test(X, y)
 
 ##### Assumption Testing
 # Linear Regression - In Progress
-def linear_regression_assumptions(model, data, labels):
+def linear_regression_assumptions(data, labels, feature_names):
     """
     Tests a linear regression on the model to see if assumptions are being met
     """
+    from sklearn.linear_model import LinearRegression
+    
+    print('Fitting linear regression')
+    model = LinearRegression()
+    model.fit(X, y)
+    
+    # Returning results before performing diagnostics
+    r2 = model.score(X, y)
+    print('\nR^2:', r2)
+    print('\nCoefficients')
+    print('-------------------------------------')
+    print('Intercept:', model.intercept_)
+    for feature in range(len(feature_names)):
+        print('{0}: {1}'.format(feature_names[feature], model.coef_[feature]))
+    
 
+    print('\nPerforming linear regression assumption testing')
+    
     # Creating predictions and calculating residuals
     predictions = model.predict(data)
     df_results = pd.DataFrame({'Actual': labels, 'Predicted': predictions})
@@ -381,6 +398,7 @@ def linear_regression_assumptions(model, data, labels):
         Linearity: Assumes that a linear regression model will fit the data. If not,
                    either a quadratic term or another algorithm should be used.
         """
+        print('\n=======================================================================================')
         print('Assumption 1: Linear Relationship between the Target and the Features')
         
         print('Checking with a scatter plot of actual vs. predicted. Predictions should follow the line.')
@@ -395,17 +413,25 @@ def linear_regression_assumptions(model, data, labels):
         """
         
         """
-        print('\nAssumption 2: All variables are multivariate normal')
+        import statsmodels
+        print('\n=======================================================================================')
+        print('Assumption 2: All variables are multivariate normal')
+        print('Using the Anderson-Darling test for normal distribution')
+        print('p-values from the test - below 0.05 generally means normality:')
+        for feature in range(data.shape[1]):
+            p_value = statsmodels.stats.diagnostic.normal_ad(data[:, feature])[1]
+            print('{0}:'.format(feature_names[feature]), p_value)
         
     def multicollinearity_assumption():
         """
         
         """
         from statsmodels.stats.outliers_influence import variance_inflation_factor
-        print('\nAssumption 3: Little to no multicollinearity among predictors')
+        print('\n=======================================================================================')
+        print('Assumption 3: Little to no multicollinearity among predictors')
         
         ax = plt.subplot(111)
-        sns.heatmap(pd.DataFrame(X).corr())
+        sns.heatmap(pd.DataFrame(X, columns=feature_names).corr())
         plt.show()
         
         print('Variance Inflation Factors (VIF)')
@@ -413,7 +439,8 @@ def linear_regression_assumptions(model, data, labels):
         print('> 100: Certain multicollinearity among the variables')
         print('-------------------------------------')
         VIF = [variance_inflation_factor(X, i) for i in range(X.shape[1])]
-        [print(vif) for vif in VIF]
+        for idx, vif in enumerate(VIF):
+            print('{0}: {1}'.format(feature_names[idx], vif))
         
         possible_multicollinearity = sum([1 for vif in VIF if vif > 10])
         definite_multicollinearity = sum([1 for vif in VIF if vif > 100])
@@ -427,20 +454,29 @@ def linear_regression_assumptions(model, data, labels):
         
         """
         from statsmodels.stats.stattools import durbin_watson
-        print('\nAssumption 4: No Autocorrelation')
+        print('\n=======================================================================================')
+        print('Assumption 4: No Autocorrelation')
         print('\nPerforming Durbin-Watson Test')
-        print('Values of 1.5 < d < 2.5 generally show that there is no auto-correlation in the data')
+        print('Values of 1.5 < d < 2.5 generally show that there is no autocorrelation in the data')
         print('0 to <2 is positive autocorrelation')
         print('>2 to 4 is negative autocorrelation')
         print('-------------------------------------')
         durbinWatson = durbin_watson(df_results['Residuals'])
         print('Durbin-Watson:', durbinWatson)
+        if durbinWatson < 1.5:
+            print('Signs of positive autocorrelation')
+        elif durbinWatson > 2.5:
+            print('Signs of negative autocorrelation')
+        else:
+            print('Little to no autocorrelation')
         
     def homoscedasticity_assumption():
         """
         Homoscedasticity: Assumes that the errors exhibit constant variance
         """
-        print('\nAssumption 5: Homoscedasticity of Error Terms')
+        print('\n=======================================================================================')
+        print('Assumption 5: Homoscedasticity of Error Terms')
+        print('Residuals should have relative constant variance')
         
         # Plotting the residuals
         ax = plt.subplot(111)
@@ -458,7 +494,7 @@ def linear_regression_assumptions(model, data, labels):
     homoscedasticity_assumption()
 
 
-linear_regression_assumptions(lr, X, y)
+linear_regression_assumptions(X, y, dataset.feature_names)
 
 
 #################################################################################################################
