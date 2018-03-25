@@ -372,10 +372,15 @@ def linear_regression_assumptions(data, labels, feature_names):
     from sklearn.linear_model import LinearRegression
     
     print('Fitting linear regression')
-    model = LinearRegression()
+    # Multi-threading if the dataset is a size where doing so is beneficial
+    if data.shape[0] < 100000:
+        model = LinearRegression(n_jobs=-1)
+    else:
+        model = LinearRegression()
+        
     model.fit(X, y)
     
-    # Returning results before performing diagnostics
+    # Returning linear regression R^2 and coefficients before performing diagnostics
     r2 = model.score(X, y)
     print('\nR^2:', r2)
     print('\nCoefficients')
@@ -387,7 +392,7 @@ def linear_regression_assumptions(data, labels, feature_names):
 
     print('\nPerforming linear regression assumption testing')
     
-    # Creating predictions and calculating residuals
+    # Creating predictions and calculating residuals for assumption tests
     predictions = model.predict(data)
     df_results = pd.DataFrame({'Actual': labels, 'Predicted': predictions})
     df_results['Residuals'] = abs(df_results['Actual']) - abs(df_results['Predicted'])
@@ -401,35 +406,54 @@ def linear_regression_assumptions(data, labels, feature_names):
         print('\n=======================================================================================')
         print('Assumption 1: Linear Relationship between the Target and the Features')
         
-        print('Checking with a scatter plot of actual vs. predicted. Predictions should follow the line.')
+        print('Checking with a scatter plot of actual vs. predicted. Predictions should follow the diagonal line.')
         
-        # Plotting the actual vs predicted
+        # Plotting the actual vs predicted values
         sns.lmplot(x='Actual', y='Predicted', data=df_results, fit_reg=False, size=5)
         plt.plot(np.arange(0, df_results.max().max()), color='darkorange', linestyle='--')
         plt.title('Actual vs. Predicted')
         plt.show()
         
-    def multivariate_normal_assumption():
-        """
         
+    def multivariate_normal_assumption(p_value_thresh=0.05):
+        """
+        Normality: Assumes that the predictors have normal distributions. If they are not normal,
+                   a non-linear transformation like a log transformation or box-cox transformation
+                   can be performed on the non-normal variable.
         """
         import statsmodels
         print('\n=======================================================================================')
         print('Assumption 2: All variables are multivariate normal')
         print('Using the Anderson-Darling test for normal distribution')
         print('p-values from the test - below 0.05 generally means normality:')
+        print()
+        non_normal_variables = 0
+        
+        # Performing the Anderson-Darling test on each variable to test for normality
         for feature in range(data.shape[1]):
             p_value = statsmodels.stats.diagnostic.normal_ad(data[:, feature])[1]
+            
+            # Adding to total count of non-normality if p-value exceeds threshold
+            if p_value > p_value_thresh:
+                non_normal_variables += 1
+            
+            # Printing p-values from the test
             print('{0}:'.format(feature_names[feature]), p_value)
+        
+        print('\n{0} non-normal variables'.format(non_normal_variables))
+        
         
     def multicollinearity_assumption():
         """
-        
+        Multicollinearity: Assumes that predictors are not correlated with each other. If there is
+                           correlation among the predictors, then either removing prepdictors with
+                           high Variance Inflation Factor (VIF) values or 
         """
         from statsmodels.stats.outliers_influence import variance_inflation_factor
         print('\n=======================================================================================')
         print('Assumption 3: Little to no multicollinearity among predictors')
         
+        # Plotting the heatmap
         ax = plt.subplot(111)
         sns.heatmap(pd.DataFrame(X, columns=feature_names).corr())
         plt.show()
@@ -442,6 +466,7 @@ def linear_regression_assumptions(data, labels, feature_names):
         for idx, vif in enumerate(VIF):
             print('{0}: {1}'.format(feature_names[idx], vif))
         
+        # Gathering and printing total cases of possible or definite multicollinearity
         possible_multicollinearity = sum([1 for vif in VIF if vif > 10])
         definite_multicollinearity = sum([1 for vif in VIF if vif > 100])
         print()
@@ -451,7 +476,11 @@ def linear_regression_assumptions(data, labels, feature_names):
         
     def autocorrelation_assumption():
         """
-        
+        Autocorrelation: Assumes that there is no autocorrelation in the residuals. If there is
+                         autocorrelation, then there is a patern that is not explained due to
+                         the current value being dependent on the previous value.
+                         This may be resolved by adding a lag variable of either the dependent
+                         variable or some of the predictors.
         """
         from statsmodels.stats.stattools import durbin_watson
         print('\n=======================================================================================')
@@ -469,7 +498,8 @@ def linear_regression_assumptions(data, labels, feature_names):
             print('Signs of negative autocorrelation')
         else:
             print('Little to no autocorrelation')
-        
+
+            
     def homoscedasticity_assumption():
         """
         Homoscedasticity: Assumes that the errors exhibit constant variance
@@ -486,6 +516,7 @@ def linear_regression_assumptions(data, labels, feature_names):
         ax.spines['top'].set_visible(False)  # Removing the top spine
         plt.title('Residuals')
         plt.show()  
+        
         
     linear_assumption()
     multivariate_normal_assumption()
