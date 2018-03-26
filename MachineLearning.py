@@ -366,7 +366,7 @@ def initial_classification_test(X, y):
 initial_classification_test(X, y)
 
 ##### Assumption Testing
-# Linear Regression - In Progress
+# Linear Regression
 def linear_regression_assumptions(data, labels, feature_names):
     """
     Tests a linear regression on the model to see if assumptions are being met
@@ -423,7 +423,7 @@ def linear_regression_assumptions(data, labels, feature_names):
                    a non-linear transformation like a log transformation or box-cox transformation
                    can be performed on the non-normal variable.
         """
-        import statsmodels
+        from statsmodels.stats.diagnostic import normal_ad
         print('\n=======================================================================================')
         print('Assumption 2: All variables are multivariate normal')
         print('Using the Anderson-Darling test for normal distribution')
@@ -433,7 +433,7 @@ def linear_regression_assumptions(data, labels, feature_names):
         
         # Performing the Anderson-Darling test on each variable to test for normality
         for feature in range(data.shape[1]):
-            p_value = statsmodels.stats.diagnostic.normal_ad(data[:, feature])[1]
+            p_value = normal_ad(data[:, feature])[1]
             
             # Adding to total count of non-normality if p-value exceeds threshold
             if p_value > p_value_thresh:
@@ -443,6 +443,12 @@ def linear_regression_assumptions(data, labels, feature_names):
             print('{0}:'.format(feature_names[feature]), p_value)
         
         print('\n{0} non-normal variables'.format(non_normal_variables))
+        print()
+
+        if non_normal_variables == 0:
+            print('Assumption satisfied')
+        else:
+            print('Assumption not satisfied')
         
         
     def multicollinearity_assumption():
@@ -464,6 +470,8 @@ def linear_regression_assumptions(data, labels, feature_names):
         print('> 10: An indication that multicollinearity may be present')
         print('> 100: Certain multicollinearity among the variables')
         print('-------------------------------------')
+       
+        # Gathering the VIF for each variable
         VIF = [variance_inflation_factor(X, i) for i in range(X.shape[1])]
         for idx, vif in enumerate(VIF):
             print('{0}: {1}'.format(feature_names[idx], vif))
@@ -474,6 +482,15 @@ def linear_regression_assumptions(data, labels, feature_names):
         print()
         print('{0} cases of possible multicollinearity'.format(possible_multicollinearity))
         print('{0} cases of definite multicollinearity'.format(definite_multicollinearity))
+        print()
+
+        if definite_multicollinearity == 0:
+            if possible_multicollinearity == 0:
+                print('Assumption satisfied')
+            else:
+                print('Assumption possibly satisfied')
+        else:
+            print('Assumption not satisfied')
         
         
     def autocorrelation_assumption():
@@ -496,10 +513,13 @@ def linear_regression_assumptions(data, labels, feature_names):
         print('Durbin-Watson:', durbinWatson)
         if durbinWatson < 1.5:
             print('Signs of positive autocorrelation')
+            print('\nAssumption not satisfied')
         elif durbinWatson > 2.5:
             print('Signs of negative autocorrelation')
+            print('\nAssumption not satisfied')
         else:
             print('Little to no autocorrelation')
+            print('\nAssumption satisfied')
 
             
     def homoscedasticity_assumption():
