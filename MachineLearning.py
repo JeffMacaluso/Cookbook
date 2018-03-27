@@ -367,11 +367,15 @@ initial_classification_test(X, y)
 
 ##### Assumption Testing
 # Linear Regression
-def linear_regression_assumptions(data, labels, feature_names):
+def linear_regression_assumptions(data, labels, feature_names=None):
     """
     Tests a linear regression on the model to see if assumptions are being met
     """
     from sklearn.linear_model import LinearRegression
+    
+    # Setting feature names to x1, x2, x3, etc. if they are not defined
+    if feature_names is None:
+        feature_names = ['X'+str(feature+1) for feature in range(data.shape[1])]
     
     print('Fitting linear regression')
     # Multi-threading if the dataset is a size where doing so is beneficial
@@ -380,17 +384,17 @@ def linear_regression_assumptions(data, labels, feature_names):
     else:
         model = LinearRegression()
         
-    model.fit(X, y)
+    model.fit(data, labels)
     
     # Returning linear regression R^2 and coefficients before performing diagnostics
-    r2 = model.score(X, y)
+    r2 = model.score(data, labels)
     print('\nR^2:', r2)
     print('\nCoefficients')
     print('-------------------------------------')
     print('Intercept:', model.intercept_)
-    for feature in range(len(feature_names)):
-        print('{0}: {1}'.format(feature_names[feature], model.coef_[feature]))
     
+    for feature in range(len(model.coef_)):
+        print('{0}: {1}'.format(feature_names[feature], model.coef_[feature]))
 
     print('\nPerforming linear regression assumption testing')
     
@@ -440,8 +444,8 @@ def linear_regression_assumptions(data, labels, feature_names):
                 non_normal_variables += 1
             
             # Printing p-values from the test
-            print('{0}:'.format(feature_names[feature]), p_value)
-        
+            print('{0}: {1}'.format(feature_names[feature], p_value))
+                    
         print('\n{0} non-normal variables'.format(non_normal_variables))
         print()
 
@@ -463,7 +467,7 @@ def linear_regression_assumptions(data, labels, feature_names):
         
         # Plotting the heatmap
         ax = plt.subplot(111)
-        sns.heatmap(pd.DataFrame(X, columns=feature_names).corr())
+        sns.heatmap(pd.DataFrame(data, columns=feature_names).corr())
         plt.show()
         
         print('Variance Inflation Factors (VIF)')
@@ -472,7 +476,7 @@ def linear_regression_assumptions(data, labels, feature_names):
         print('-------------------------------------')
        
         # Gathering the VIF for each variable
-        VIF = [variance_inflation_factor(X, i) for i in range(X.shape[1])]
+        VIF = [variance_inflation_factor(data, i) for i in range(data.shape[1])]
         for idx, vif in enumerate(VIF):
             print('{0}: {1}'.format(feature_names[idx], vif))
         
@@ -547,8 +551,7 @@ def linear_regression_assumptions(data, labels, feature_names):
     homoscedasticity_assumption()
 
 
-linear_regression_assumptions(X, y, dataset.feature_names)
-
+linear_regression_assumptions(X, y, feature_names=dataset.feature_names)
 
 #################################################################################################################
 ##### Evaluation Plots
