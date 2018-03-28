@@ -367,7 +367,7 @@ initial_classification_test(X, y)
 
 ##### Assumption Testing
 # Linear Regression
-def linear_regression_assumptions(data, labels, feature_names=None):
+def linear_regression_assumptions(features, label, feature_names=None):
     """
     Tests a linear regression on the model to see if assumptions are being met
     """
@@ -375,19 +375,19 @@ def linear_regression_assumptions(data, labels, feature_names=None):
     
     # Setting feature names to x1, x2, x3, etc. if they are not defined
     if feature_names is None:
-        feature_names = ['X'+str(feature+1) for feature in range(data.shape[1])]
+        feature_names = ['X'+str(feature+1) for feature in range(features.shape[1])]
     
     print('Fitting linear regression')
     # Multi-threading if the dataset is a size where doing so is beneficial
-    if data.shape[0] < 100000:
+    if features.shape[0] < 100000:
         model = LinearRegression(n_jobs=-1)
     else:
         model = LinearRegression()
         
-    model.fit(data, labels)
+    model.fit(features, label)
     
     # Returning linear regression R^2 and coefficients before performing diagnostics
-    r2 = model.score(data, labels)
+    r2 = model.score(features, label)
     print('\nR^2:', r2)
     print('\nCoefficients')
     print('-------------------------------------')
@@ -399,8 +399,8 @@ def linear_regression_assumptions(data, labels, feature_names=None):
     print('\nPerforming linear regression assumption testing')
     
     # Creating predictions and calculating residuals for assumption tests
-    predictions = model.predict(data)
-    df_results = pd.DataFrame({'Actual': labels, 'Predicted': predictions})
+    predictions = model.predict(features)
+    df_results = pd.DataFrame({'Actual': label, 'Predicted': predictions})
     df_results['Residuals'] = abs(df_results['Actual']) - abs(df_results['Predicted'])
 
     
@@ -440,8 +440,8 @@ def linear_regression_assumptions(data, labels, feature_names=None):
         non_normal_variables = 0
         
         # Performing the Anderson-Darling test on each variable to test for normality
-        for feature in range(data.shape[1]):
-            p_value = normal_ad(data[:, feature])[1]
+        for feature in range(features.shape[1]):
+            p_value = normal_ad(features[:, feature])[1]
             
             # Adding to total count of non-normality if p-value exceeds threshold
             if p_value > p_value_thresh:
@@ -471,7 +471,7 @@ def linear_regression_assumptions(data, labels, feature_names=None):
         
         # Plotting the heatmap
         ax = plt.subplot(111)
-        sns.heatmap(pd.DataFrame(data, columns=feature_names).corr())
+        sns.heatmap(pd.DataFrame(features, columns=feature_names).corr())
         plt.show()
         
         print('Variance Inflation Factors (VIF)')
@@ -480,7 +480,7 @@ def linear_regression_assumptions(data, labels, feature_names=None):
         print('-------------------------------------')
        
         # Gathering the VIF for each variable
-        VIF = [variance_inflation_factor(data, i) for i in range(data.shape[1])]
+        VIF = [variance_inflation_factor(features, i) for i in range(features.shape[1])]
         for idx, vif in enumerate(VIF):
             print('{0}: {1}'.format(feature_names[idx], vif))
         
