@@ -514,7 +514,7 @@ def linear_regression_assumptions(data, labels, feature_names=None):
         print('Assumption 4: No Autocorrelation')
         print('\nPerforming Durbin-Watson Test')
         print('Values of 1.5 < d < 2.5 generally show that there is no autocorrelation in the data')
-        print('0 to <2 is positive autocorrelation')
+        print('0 to 2< is positive autocorrelation')
         print('>2 to 4 is negative autocorrelation')
         print('-------------------------------------')
         durbinWatson = durbin_watson(df_results['Residuals'])
