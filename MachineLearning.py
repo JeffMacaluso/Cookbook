@@ -572,7 +572,11 @@ def plot_residuals(model, values, labels):
     
     # Plotting the actual vs predicted
     sns.lmplot(x='Actual', y='Predicted', data=df_results, fit_reg=False, size=6)
-    plt.plot(np.arange(0, df_results.max().max()), color='darkorange', linestyle='--')
+
+    # Plotting the diagonal line
+    line_coords = np.arange(df_results.min().min(), df_results.max().max())
+    plt.plot(line_coords, line_coords,  # X and y points
+             color='darkorange', linestyle='--')
     plt.title('Actual vs. Predicted')
     plt.show()
     
