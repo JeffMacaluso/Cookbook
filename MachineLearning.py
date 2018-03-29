@@ -406,8 +406,9 @@ def linear_regression_assumptions(features, label, feature_names=None):
     
     def linear_assumption():
         """
-        Linearity: Assumes that a linear regression model will fit the data. If not,
-                   either a quadratic term or another algorithm should be used.
+        Linearity: Assumes there is a linear relationship between the predictors and
+                   the response variable. If not, either a quadratic term or another
+                   algorithm should be used.
         """
         print('\n=======================================================================================')
         print('Assumption 1: Linear Relationship between the Target and the Features')
