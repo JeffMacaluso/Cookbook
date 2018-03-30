@@ -38,12 +38,12 @@ def percent_missing(dataframe):
     Prints the percentage of missing values for each column in a dataframe
     """
     # Summing the number of missing values per column and then dividing by the total
-    sumMissing = df.isnull().values.sum(axis=0)
-    pctMissing = sumMissing / df.shape[0]
+    sumMissing = dataframe.isnull().values.sum(axis=0)
+    pctMissing = sumMissing / dataframe.shape[0]
     
     # Looping through and printing out each columns missing value percentage
     print('Percent Missing Values:', '\n')
-    for idx, col in enumerate(df.columns):
+    for idx, col in enumerate(dataframe.columns):
         print('{0}: {1:.2f}%'.format(col, pctMissing[idx] * 100))
         
 
@@ -87,7 +87,7 @@ def predict_missing_values(data, column, correlationThresh=0.5, cross_validation
     # Instantiating the model
     # Picking a classification model if the number of unique labels are 25 or under
     num_unique_values = len(np.unique(data[column]))
-    if num_unique_values > 25 or df[column].dtype != 'category':
+    if num_unique_values > 25 or data[column].dtype != 'category':
         print('Variable is continuous')
         rfImputer = ensemble.RandomForestRegressor(n_estimators=100, n_jobs=num_cores)
     else:
