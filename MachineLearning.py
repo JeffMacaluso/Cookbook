@@ -41,6 +41,7 @@ cross_val_score(model, X, y, cv=k_fold, n_jobs=-1)
 # Randomized Search
 from sklearn.model_selection import RandomizedSearchCV
 from scipy.stats import randint as sp_randint
+
 # Specifying parameters and distributions to sample from
 param_dist = {'max_depth': [3, None],
               'max_features': sp_randint(1, X.shape[1]),
@@ -48,23 +49,32 @@ param_dist = {'max_depth': [3, None],
               'min_samples_leaf': sp_randint(1, 11),
               'bootstrap': [True, False],
               'criterion': ['gini', 'entropy']}
+
 randomForest = RandomForestClassifier(n_jobs=-1)
+
+# Performing randomized search
 model = RandomizedSearchCV(randomForest, param_distributions=param_dist,
                          n_iter=50, n_jobs=-1, cv=5)
 model.fit(X, y)
+
 print('Best Estimator:', model.best_estimator_, '\n', 
       'Best Parameters:', model.best_params_, '\n', 
       'Best Score:', model.best_score_)
 
 # Grid search
 from sklearn.model_selection import GridSearchCV
+
 parameters = {'kernel': ('linear', 'rbf'), 'C': [1, 10]}
+
 svc = svm.SVC()
-clf = GridSearchCV(svc, parameters)
-clf.fit(X, y)
-print('Best Estimator:', clf.best_estimator_, '\n', 
-      'Best Parameters:', clf.best_params_, '\n', 
-      'Best Score:', clf.best_score_)
+
+# Performing grid search
+model = GridSearchCV(svc, parameters)
+model.fit(X, y)
+
+print('Best Estimator:', model.best_estimator_, '\n', 
+      'Best Parameters:', model.best_params_, '\n', 
+      'Best Score:', model.best_score_)
 
 ### Class Probability Cutoffs
 # Probability Threshold Search - xgboost
