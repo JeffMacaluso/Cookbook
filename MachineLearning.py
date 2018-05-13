@@ -38,6 +38,24 @@ cross_val_score(model, X, y, cv=k_fold, n_jobs=-1)
 ##### Hyperparameter and model tuning 
 
 ### Hyperparameter Tuning
+# Randomized Search
+from sklearn.model_selection import RandomizedSearchCV
+from scipy.stats import randint as sp_randint
+# Specifying parameters and distributions to sample from
+param_dist = {'max_depth': [3, None],
+              'max_features': sp_randint(1, X.shape[1]),
+              'min_samples_split': sp_randint(2, 11),
+              'min_samples_leaf': sp_randint(1, 11),
+              'bootstrap': [True, False],
+              'criterion': ['gini', 'entropy']}
+randomForest = RandomForestClassifier(n_jobs=-1)
+model = RandomizedSearchCV(randomForest, param_distributions=param_dist,
+                         n_iter=50, n_jobs=-1, cv=5)
+model.fit(X, y)
+print('Best Estimator:', model.best_estimator_, '\n', 
+      'Best Parameters:', model.best_params_, '\n', 
+      'Best Score:', model.best_score_)
+
 # Grid search
 from sklearn.model_selection import GridSearchCV
 parameters = {'kernel': ('linear', 'rbf'), 'C': [1, 10]}
