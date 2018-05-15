@@ -23,6 +23,24 @@ assembler = VectorAssembler(
 output = assembler.transform(df)
 trainingDataset = output.select('features', col(labelColumn).alias('label'))
 
+# One Hot Encoding
+def one_hot_encode(column, dataframe):
+  '''
+  Returns a dataframe with an additional one hot encoded column specified on the input
+  '''
+  from pyspark.ml.feature import OneHotEncoder, StringIndexer
+  
+  # Indexing the column before one hot encoding
+  stringIndexer = StringIndexer(inputCol=column, outputCol='categoryIndex')
+  model = stringIndexer.fit(dataframe)
+  indexed = model.transform(dataframe)
+  
+  # One hot encoding the column
+  encoder = OneHotEncoder(inputCol='categoryIndex', outputCol=column+'_one_hot')
+  encoded = encoder.transform(indexed).drop('categoryIndex')
+
+  return encoded
+
 #################################################################################################################
 ##### Cross Validation
 # Train/test split
