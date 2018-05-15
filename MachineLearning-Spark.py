@@ -6,6 +6,24 @@ print('OS:', sys.platform)
 print('Python:', sys.version)
 
 #################################################################################################################
+##### Data Preparation
+# Vectorizing a training set before feeding into a ML model
+from pyspark.ml.feature import VectorAssembler
+
+# Specifying the name of the column containing the label
+labelColumn = 'price'
+
+# Specifying the names of the columns containing the features
+featureColumns = ['previous_hour_price']
+
+# Assembling the vectors and outputting the training set
+assembler = VectorAssembler(
+    inputCols=featureColumns,
+    outputCol='features')
+output = assembler.transform(test)
+trainingDataset = output.select('features', col(labelColumn).alias('label'))
+
+#################################################################################################################
 ##### Cross Validation
 # Train/test split
 seed = 46
@@ -56,3 +74,25 @@ crossval = CrossValidator(estimator=model,
 
 # Re-fitting on the entire training set
 cvModel = crossval.fit(trainingDF)
+
+#################################################################################################################
+##### Model Diagnostics
+# Summary of a typical model
+from pyspark.ml.regression import LinearRegression
+
+lr = LinearRegression(maxIter=10, regParam=0.3, elasticNetParam=0.8)
+
+# Fit the model
+lrModel = lr.fit(trainingSet)
+
+# Print the coefficients and intercept for linear regression
+print("Coefficients: %s" % str(lrModel.coefficients))
+print("Intercept: %s" % str(lrModel.intercept))
+
+# Summarize the model over the training set and print out some metrics
+trainingSummary = lrModel.summary
+print("numIterations: %d" % trainingSummary.totalIterations)
+print("objectiveHistory: %s" % str(trainingSummary.objectiveHistory))
+trainingSummary.residuals.show()
+print("RMSE: %f" % trainingSummary.rootMeanSquaredError)
+print("r2: %f" % trainingSummary.r2)
