@@ -20,7 +20,7 @@ featureColumns = ['previous_hour_price']
 assembler = VectorAssembler(
     inputCols=featureColumns,
     outputCol='features')
-output = assembler.transform(test)
+output = assembler.transform(df)
 trainingDataset = output.select('features', col(labelColumn).alias('label'))
 
 #################################################################################################################
