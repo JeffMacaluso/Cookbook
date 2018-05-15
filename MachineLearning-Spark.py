@@ -13,7 +13,12 @@ seed = 46
 
 # Evaluating regression
 # https://spark.apache.org/docs/2.2.0/ml-tuning.html
+from pyspark.ml.regression import LinearRegression
 from pyspark.ml.evaluation import RegressionEvaluator
+
+# Fitting the model
+lr = LinearRegression()
+model = lr.fit(trainingDF)
 
 regEval = RegressionEvaluator().setLabelCol('label')  # Instantiating & setting the label column
 predictDF = model.transform(testDF)  # Generating predictions
