@@ -41,6 +41,20 @@ def one_hot_encode(column, dataframe):
 
   return encoded
 
+# Adding a lag variable
+def lag_variable(column, dataframe, partition_column, count=12):
+  '''
+  Returns a dataframe with an additional lag column specified from the input
+  '''
+  import pyspark.sql.functions as sqlF
+  from pyspark.sql.window import Window
+  
+  lagDF = (dataframe.withColumn('previous_hour_'+column,
+                                sqlF.lag(dataframe[column], count=count)
+                                    .over(Window.partitionBy()
+                                      .orderBy(partition_column))))
+  return lagDF
+
 #################################################################################################################
 ##### Cross Validation
 # Train/test split
