@@ -87,6 +87,68 @@ crossval = CrossValidator(estimator=model,
 # Re-fitting on the entire training set
 cvModel = crossval.fit(trainingDF)
 
+# Sliding window for time series model evaluation
+def sliding_test(dataframe, feature_columns, num_windows=5, test_size=0.2):
+    '''
+    Takes an input dataframe, splits it into partitions, and performs a sliding window where
+    each partition is split between a train/test set and a linear regression is trained
+    and evaluated
+    
+    Meant for analyzing the performance of a time series regression forecasting model as a random
+    split is not appropriate in a time series setting
+    '''
+    from pyspark.ml.feature import VectorAssembler
+    from pyspark.ml.regression import LinearRegression
+    from pyspark.ml.evaluation import RegressionEvaluator
+    
+    # Gathering statistics for window partitions and train/test splits
+    total_rows = dataframe.count()
+    window_size = round(total_rows / num_windows)
+    num_training_rows = round((dataframe.count() * (1 - test_size)) / num_windows)
+
+    # Creating a column for partition numbers
+    dataframe = (dataframe.withColumn('window_num', ((sqlF.row_number().over(Window.orderBy('date_time_resampled')) - 1) / window_size) + 1)
+                          .withColumn('window_num', sqlF.floor(col('window_num'))))  # Truncating to integers
+    
+    # Specifying the name of the column containing the label
+    labelColumn = 'price'
+
+    # Assembling the vectors and outputting the training set
+    assembler = VectorAssembler(
+        inputCols=feature_columns,
+        outputCol='features')
+    output = assembler.transform(dataframe)
+    vectorizedDF = output.select('features', col(labelColumn).alias('label'), 'window_num')
+    
+   # Looping over windows, splitting into train/test sets, and training and evaluating a model on each set
+    for window in range(1, num_windows+1):
+        
+        # Subsetting the dataframe into the window
+        dataWindow = vectorizedDF.filter(col('window_num') == window).drop('window_num')
+
+        # Splitting into train/testing sets
+        trainWindow = sqlContext.createDataFrame(dataWindow.head(num_training_rows), dataWindow.schema)
+        testWindow = dataWindow.subtract(trainWindow)
+        
+        # Fitting the model
+        # Using L1 regularization for automatic feature selection
+        lr = LinearRegression(elasticNetParam=1.0, regParam=0.03)
+        model = lr.fit(trainWindow)
+    
+        # Gathering evaluation and summary metrics
+        modelSummary = model.summary
+        
+        print('Window', window)
+        print('Training Size:', trainWindow.count())
+        print('Testing Size:', testWindow.count())
+        print("r2: %f" % modelSummary.r2)
+        print("Training RMSE: %f" % modelSummary.rootMeanSquaredError)
+        print()
+        
+        
+feature_columns = ['previous_hour_price', 'previous_hour_high_low_range', 'previous_hour_volume']
+sliding_test(dataframe=test, feature_columns=feature_columns, num_windows=3, test_size=0.2)
+
 #################################################################################################################
 ##### Hyperparameter Tuning
 # Grid Search
