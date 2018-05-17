@@ -154,21 +154,35 @@ sliding_test(dataframe=test, feature_columns=feature_columns, num_windows=3, tes
 ##### Hyperparameter Tuning
 # Grid Search
 from pyspark.ml.tuning import CrossValidator, ParamGridBuilder
+from pyspark.ml.classification import RandomForestClassifier
+from pyspark.ml.evaluation import MulticlassClassificationEvaluator
 
 # Defining our parameter grid
 paramGrid = (ParamGridBuilder()
-  .addGrid(model.params, [1, 5, 15])
+  .addGrid(randomForest.numTrees, [10, 30, 100, 300])
+  .addGrid(randomForest.maxDepth, [3, None])
   .build()
 )
 
 # Cross validation with the parameter grid
-crossval = CrossValidator(estimator=model,
+crossval = CrossValidator(estimator=randomForest,
                           estimatorParamMaps=paramGrid,
-                          evaluator=regEval,
+                          evaluator=MulticlassClassificationEvaluator(),
                           numFolds=3)
 
-# Re-fitting on the entire training set
-cvModel = crossval.fit(trainingDF)
+# Reporting the number of nodes on the cluster
+print('Number of nodes on the cluster:', sc._jsc.sc().getExecutorMemoryStatus().size())
+
+# Performing the grid search
+cvModel = crossval.fit(trainingDataset)
+
+# Grabbing the best parameters
+bestModelParams = cvModel.bestModel._java_obj.parent()
+
+# Reporting the best obtained parameters
+print('Hyperparameters for the best model:')
+print('Number of Trees:', bestModelParams.getNumTrees())
+print('Max Depth:', bestModelParams.getMaxDepth())
 
 #################################################################################################################
 ##### Model Diagnostics
