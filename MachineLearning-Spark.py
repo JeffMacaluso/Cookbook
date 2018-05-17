@@ -152,7 +152,7 @@ sliding_test(dataframe=test, feature_columns=feature_columns, num_windows=3, tes
 
 #################################################################################################################
 ##### Hyperparameter Tuning
-# Grid Search
+# Grid Search - Spark ML
 from pyspark.ml.tuning import CrossValidator, ParamGridBuilder
 from pyspark.ml.classification import RandomForestClassifier
 from pyspark.ml.evaluation import MulticlassClassificationEvaluator
@@ -183,6 +183,37 @@ bestModelParams = cvModel.bestModel._java_obj.parent()
 print('Hyperparameters for the best model:')
 print('Number of Trees:', bestModelParams.getNumTrees())
 print('Max Depth:', bestModelParams.getMaxDepth())
+
+
+# Grid Search - Spark Scikit-Learn
+import spark_sklearn
+from sklearn.ensemble import RandomForestClassifier
+
+# Ensuring our Spark context exists in the sc variable
+# This is likely unnecessary in a Databricks cluster
+sc = pyspark.SparkContext.getOrCreate()
+
+randomForest = RandomForestClassifier()
+
+# Defining our parameter grid
+parameters = {'n_estimators': [10, 30, 100, 300],
+              'max_depth': [3, None]
+              'max_features': [1, 3, None],
+              'min_samples_leaf': [1, 3, 10],
+              'bootstrap': [True, False],
+              'criterion': ['gini', 'entropy']}
+
+# Cross validation with the parameter grid
+model = spark_sklearn.GridSearchCV(sc, randomForest, parameters, refit=True, cv=3)
+
+# Reporting the cluster size
+print('Number of nodes on the cluster:', sc._jsc.sc().getExecutorMemoryStatus().size())
+
+# Performing the grid search
+model.fit(X, y)
+
+# Reporting the parameters of the best model
+model.best_estimator_
 
 #################################################################################################################
 ##### Model Diagnostics
