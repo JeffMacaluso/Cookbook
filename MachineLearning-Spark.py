@@ -4,6 +4,7 @@ import time
 print(time.strftime('%Y/%m/%d %H:%M'))
 print('OS:', sys.platform)
 print('Python:', sys.version)
+print('Number of nodes on the cluster:', sc._jsc.sc().getExecutorMemoryStatus().size())
 
 #################################################################################################################
 ##### Data Preparation
