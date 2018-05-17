@@ -9,6 +9,7 @@ print('Python:', sys.version)
 ##### Data Preparation
 # Vectorizing a training set before feeding into a ML model
 from pyspark.ml.feature import VectorAssembler
+from pyspark.sql.functions import col
 
 # Specifying the name of the column containing the label
 labelColumn = 'price'
