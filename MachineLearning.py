@@ -699,3 +699,48 @@ def feature_importance(model):
     plt.xlabel('Relative Importance')
     plt.title('Variable Importance')
     plt.show()
+    
+#################################################################################################################
+##### Misc
+
+# Prediction Intervals - Random Forests
+def random_forest_prediction_intervals(model, X, percentile=95):
+    '''
+    Calculates the specified prediction intervals for each prediction
+    from an ensemble scikit-learn model
+    
+    Taken from https://blog.datadive.net/prediction-intervals-for-random-forests/
+    
+    TO-DO: 
+      - Try to optimize by removing loops where possible
+      - Update to work with gradient boosted trees; see
+      http://scikit-learn.org/stable/auto_examples/ensemble/plot_gradient_boosting_quantile.html
+    '''
+    # Checking if the model has the estimators_ attribute
+    if 'estimators_' not in dir(model):
+        print('Not an ensemble model - exiting function')
+        return
+
+    # Accumulating lower and upper prediction intervals
+    lower_PI = []
+    upper_PI = []
+    
+    # Looping through individual records for predictions
+    for record in range(len(X)):
+        predictions = []
+        
+        # Looping through estimators and gathering predictions
+        for estimator in model.estimators_:
+            predictions.append(estimator.predict(X[record].reshape(1, -1))[0])
+            
+        # Adding prediction intervals
+        lower_PI.append(np.percentile(predictions, (100 - percentile) / 2.))
+        upper_PI.append(np.percentile(predictions, 100 - (100 - percentile) / 2.))
+    
+    # Compiling results of prediction intervals and the actual predictions
+    predictions = model.predict(X)
+    results = pd.DataFrame({'lower_PI': lower_PI,
+                            'prediction': predictions,
+                            'upper_PI': upper_PI})
+    
+    return results
