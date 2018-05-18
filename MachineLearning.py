@@ -704,7 +704,7 @@ def feature_importance(model):
 ##### Misc
 
 # Prediction Intervals - Random Forests
-def random_forest_prediction_intervals(model, X, percentile=95):
+def random_forest_prediction_intervals(model, X, percentile=0.95):
     '''
     Calculates the specified prediction intervals for each prediction
     from an ensemble scikit-learn model
@@ -734,8 +734,8 @@ def random_forest_prediction_intervals(model, X, percentile=95):
             predictions.append(estimator.predict(X[record].reshape(1, -1))[0])
             
         # Adding prediction intervals
-        lower_PI.append(np.percentile(predictions, (100 - percentile) / 2.))
-        upper_PI.append(np.percentile(predictions, 100 - (100 - percentile) / 2.))
+        lower_PI.append(np.percentile(predictions, (1 - percentile) / 2.))
+        upper_PI.append(np.percentile(predictions, 100 - (1 - percentile) / 2.))
     
     # Compiling results of prediction intervals and the actual predictions
     predictions = model.predict(X)
