@@ -703,18 +703,30 @@ def feature_importance(model):
 #################################################################################################################
 ##### Misc
 
-# Prediction Intervals - Random Forests
-def random_forest_prediction_intervals(model, X, percentile=0.95):
+# Prediction Intervals - Ensemble Scikit-Learn Models
+def ensemble_prediction_intervals(model, X, X_train=None, y_train=None, percentile=0.95):
     '''
     Calculates the specified prediction intervals for each prediction
-    from an ensemble scikit-learn model
+    from an ensemble scikit-learn model.
     
-    Taken from https://blog.datadive.net/prediction-intervals-for-random-forests/
+    Inputs:
+        - model: The scikit-learn model to create prediction intervals for. This must be
+                 either a RandomForestRegressor or GradientBoostingRegressor
+        - X: The input array to create predictions & prediction intervals for
+        - X_train: The training features for the gradient boosted trees
+        - y_train: The training label for the gradient boosted trees
+        - percentile: The prediction interval percentile. Default of 0.95 is 0.025 - 0.975
+    
+    Note: Use X_train and y_train when using a gradient boosted regressor because a copy of
+          the model will be re-trained with quantile loss.
+          These are not needed for a random forest regressor
+    
+    Output: A dataframe with the predictions and prediction intervals for X
     
     TO-DO: 
       - Try to optimize by removing loops where possible
-      - Update to work with gradient boosted trees; see
-      http://scikit-learn.org/stable/auto_examples/ensemble/plot_gradient_boosting_quantile.html
+      - Fix upper prediction intervals for gradient boosted regressors
+      - Add xgboost
     '''
     # Checking if the model has the estimators_ attribute
     if 'estimators_' not in dir(model):
@@ -725,20 +737,54 @@ def random_forest_prediction_intervals(model, X, percentile=0.95):
     lower_PI = []
     upper_PI = []
     
-    # Looping through individual records for predictions
-    for record in range(len(X)):
-        predictions = []
+    # Generating predictions to be returned with prediction intervals
+    print('Generating predictions with the model')
+    predictions = model.predict(X)
+    
+    # Prediction intervals for a random forest regressor
+    # Taken from https://blog.datadive.net/prediction-intervals-for-random-forests/
+    if str(type(model)) == "<class 'sklearn.ensemble.forest.RandomForestRegressor'>":
+        print('Generating upper and lower prediction intervals')
         
-        # Looping through estimators and gathering predictions
-        for estimator in model.estimators_:
-            predictions.append(estimator.predict(X[record].reshape(1, -1))[0])
+        # Looping through individual records for predictions
+        for record in range(len(X)):
+            estimator_predictions = []
+        
+            # Looping through estimators and gathering predictions
+            for estimator in model.estimators_:
+                estimator_predictions.append(estimator.predict(X[record].reshape(1, -1))[0])
             
-        # Adding prediction intervals
-        lower_PI.append(np.percentile(predictions, (1 - percentile) / 2.))
-        upper_PI.append(np.percentile(predictions, 100 - (1 - percentile) / 2.))
+            # Adding prediction intervals
+            lower_PI.append(np.percentile(estimator_predictions, (1 - percentile) / 2.))
+            upper_PI.append(np.percentile(estimator_predictions, 100 - (1 - percentile) / 2.))
+    
+    # Prediction intervals for gradient boosted trees
+    # Taken from http://scikit-learn.org/stable/auto_examples/ensemble/plot_gradient_boosting_quantile.html
+    if str(type(model)) == "<class 'sklearn.ensemble.gradient_boosting.GradientBoostingRegressor'>":
+        # Cloning the model so the original version isn't overwritten
+        from sklearn.base import clone
+        quantile_model = clone(model)
+        
+        # Calculating buffer for upper/lower alpha to get the Xth percentile
+        alpha_buffer = ((1 - x) / 2)
+        alpha = percentile + alpha_buffer
+        
+        # Setting the loss function to quantile before re-fitting
+        quantile_model.set_params(loss='quantile')
+        
+        # Upper prediction interval
+        print('Generating upper prediction intervals')
+        quantile_model.set_params(alpha=alpha)
+        quantile_model.fit(X_train, y_train)
+        upper_PI = quantile_model.predict(X)
+        
+        # Lower prediction interval
+        print('Generating lower prediction intervals')
+        quantile_model.set_params(alpha=(1 - alpha))
+        quantile_model.fit(X_train, y_train)
+        lower_PI = quantile_model.predict(X)
     
     # Compiling results of prediction intervals and the actual predictions
-    predictions = model.predict(X)
     results = pd.DataFrame({'lower_PI': lower_PI,
                             'prediction': predictions,
                             'upper_PI': upper_PI})
