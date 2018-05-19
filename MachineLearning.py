@@ -790,3 +790,53 @@ def ensemble_prediction_intervals(model, X, X_train=None, y_train=None, percenti
                             'upper_PI': upper_PI})
     
     return results
+
+
+# Ensemble Predictions - xgboost
+def ensemble_xgboost_predictions(train_features, train_labels, prediction_features, num_models=3):
+    '''
+    Trains the number of specified xgboost models and averages the predictions
+    
+    Inputs: 
+        - train_features: A numpy array of the features for the training dataset
+        - train_labels: A numpy array of the labels for the training dataset
+        - prediction_features: A numpy array of the features to create predictions for
+        - num_models: The number of models to train
+        
+    Outputs:
+        - A numpy array of predictions
+    '''
+    
+    # Creating the prediction object to append results to
+    # This first row of ones will be deleted later
+    predictions = np.ones(prediction_features.shape[0])
+    
+    # Parameters for the model - http://xgboost.readthedocs.io/en/latest/parameter.html
+    num_rounds = 100
+    params = {'booster': 'gbtree',
+              'max_depth': 6,  # Default is 6
+              'eta': 0.3,  # Step size shrinkage. Default is 0.3
+              'alpha': 0,  # L1 regularization. Default is 0.
+              'lambda': 1,  # L2 regularization. Default is 1.
+              'objective': 'reg:linear'}
+    
+    # Creating DMatrix objects from X/y
+    D_train = xgb.DMatrix(train_features, label=train_labels)
+    D_test = xgb.DMatrix(prediction_features)
+    
+    # Training each model and gathering the predictions
+    for num_model in range(num_models):
+        
+        # Progress printing for every 10% of completion
+        if (num_model+1) % (round(num_models) / 10) == 0:
+            print('Training model number', num_model+1)
+        
+        model = xgb.train(params, D_train, num_rounds)
+        model_prediction = model.predict(D_test)
+        predictions = np.vstack((predictions, model_prediction))
+    
+    # Averaging the predictions for output
+    predictions = predictions[1:, :]  # Removing the initial row
+    predictions = np.average(predictions, axis=0)  # Averaging each column
+    
+    return predictions
