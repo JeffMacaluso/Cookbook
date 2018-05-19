@@ -805,6 +805,9 @@ def ensemble_xgboost_predictions(train_features, train_labels, prediction_featur
         
     Outputs:
         - A numpy array of predictions
+        
+    TO-DO:
+        - Update predictions for classification class probabilities
     '''
     
     # Creating the prediction object to append results to
@@ -818,7 +821,11 @@ def ensemble_xgboost_predictions(train_features, train_labels, prediction_featur
               'eta': 0.3,  # Step size shrinkage. Default is 0.3
               'alpha': 0,  # L1 regularization. Default is 0.
               'lambda': 1,  # L2 regularization. Default is 1.
-              'objective': 'reg:linear'}
+              
+              # Use binary:logistic, or multi:softprob for classification
+              # Add gpu: to the beginning if training with a GPU
+              'objective': 'reg:linear'  # Use reg:logistic, binary:logistic, or binary:log
+             }
     
     # Creating DMatrix objects from X/y
     D_train = xgb.DMatrix(train_features, label=train_labels)
