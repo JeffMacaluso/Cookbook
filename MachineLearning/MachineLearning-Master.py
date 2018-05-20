@@ -1,3 +1,8 @@
+'''
+The original script that the other scripts in this folder are based off of.
+Not discarding to maintain commit history.
+'''
+
 import sys
 import time
 import numpy as np
