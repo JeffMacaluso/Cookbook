@@ -791,7 +791,8 @@ def ensemble_prediction_intervals(model, X, X_train=None, y_train=None, percenti
     
     return results
 
-
+  
+# Ensemble predictions - xgboost
 def ensemble_xgboost_predictions(train_features, train_labels, prediction_features, num_models=3):
     '''
     Trains the number of specified xgboost models and averages the predictions
@@ -861,3 +862,57 @@ def ensemble_xgboost_predictions(train_features, train_labels, prediction_featur
     
     return predictions
   
+# Ensemble predictions - Scikit-Learn
+def ensemble_sklearn_predictions(model, train_features, train_labels, prediction_features, num_models=3):
+    '''
+    Trains the number of specified scikit-learn models and averages the predictions
+    
+    Inputs: 
+        - train_features: A numpy array of the features for the training dataset
+        - train_labels: A numpy array of the labels for the training dataset
+        - prediction_features: A numpy array of the features to create predictions for
+        - num_models: The number of models to train
+        
+    Outputs:
+        - A numpy array of point or class probability predictions
+        
+    TO-DO:
+        - Test binary classification
+    '''
+    from sklearn.base import clone
+    
+    # Auto-detecting if it's a classification problem
+    # Adjust the num_classes cutoff if dealing with a high number of classes
+    num_classes = len(np.unique(train_labels))
+    if num_classes < 50:
+        is_classification = 1
+    else:
+        is_classification = 0
+        
+    # Creating the prediction object to append results to
+    predictions = []
+        
+    # Training each model and gathering the predictions
+    for num_model in range(num_models):
+        
+        # Progress printing for every 10% of completion
+        if (num_model+1) % (round(num_models) / 10) == 0:
+            print('Training model number', num_model+1)
+        
+        # Cloning the original model
+        model_iteration = clone(model)
+        
+        # Training the model
+        model_iteration.fit(train_features, train_labels)
+        
+        # Gathering predictions
+        if is_classification == 1:
+            model_prediction = model_iteration.predict_proba(prediction_features)
+        else:
+            model_prediction = model_iteration.predict(prediction_features)
+        predictions.append(model_prediction)
+    
+    # Averaging the predictions for output
+    predictions = np.asarray(predictions).mean(axis=0)
+    
+    return predictions
