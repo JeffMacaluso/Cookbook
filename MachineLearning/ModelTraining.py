@@ -35,9 +35,9 @@ k_fold = KFold(n_splits=10, shuffle=True, random_state=46)
 cross_val_score(model, X, y, cv=k_fold, n_jobs=-1)
 
 #################################################################################################################
-##### Hyperparameter and model tuning 
+##### Hyperparameter tuning
 
-### Hyperparameter Tuning
+# Random Search
 def hyperparameter_random_search(X, y, model=None, parameters=None, num_folds=5, num_iterations=50):
     '''
     Performs a random search on hyperparameters and 
@@ -94,7 +94,9 @@ print('Best Estimator:', model.best_estimator_, '\n',
       'Best Parameters:', model.best_params_, '\n', 
       'Best Score:', model.best_score_)
 
-### Class Probability Cutoffs
+#################################################################################################################
+##### Class Probability Cutoffs
+
 # Probability Threshold Search - xgboost
 cv = cross_validation.KFold(len(X), n_folds=5, shuffle=True, random_state=46)
 
