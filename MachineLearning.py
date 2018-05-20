@@ -170,7 +170,7 @@ def optimal_probability_cutoff(model, test_dataset, test_labels, max_thresh=0.3,
     else:
         avg = 'micro'
 
-    # Looping trhough different probability thresholds
+    # Looping through different probability thresholds
     for thresh in np.arange(0, (max_thresh+step_size), step_size):
         pred_bin = pd.Series(predicted).apply(lambda x: 1 if x > thresh else 0)
         f1 = metrics.f1_score(test_labels, pred_bin, average=avg)
