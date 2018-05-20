@@ -95,6 +95,8 @@ def hyperparameter_random_search(X, y, model=None, parameters=None, num_folds=5,
     print('Best Score:', model.best_score_)
     
     return model
+
+
 # Grid search
 from sklearn.model_selection import GridSearchCV
 
