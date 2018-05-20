@@ -30,4 +30,3 @@ Personal reference scripts for commonly used code
     - [Cross Validation](https://github.com/JeffMacaluso/Cookbook/blob/5a86c309d58b0fe2231fe9d676f1840a924fa468/MachineLearning/SparkML.py#L60)
     - [Hyperparameter Tuning](https://github.com/JeffMacaluso/Cookbook/blob/5a86c309d58b0fe2231fe9d676f1840a924fa468/MachineLearning/SparkML.py#L154)
     - [Model Diagnostics](https://github.com/JeffMacaluso/Cookbook/blob/5a86c309d58b0fe2231fe9d676f1840a924fa468/MachineLearning/SparkML.py#L219)
-    - []()
