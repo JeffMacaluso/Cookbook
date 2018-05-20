@@ -807,7 +807,7 @@ def ensemble_xgboost_predictions(train_features, train_labels, prediction_featur
     '''
     
     # Auto-detecting if it's a classification problem and setting the objective for the model
-    # Adjust this number if num classes is higher
+    # Adjust the num_classes cutoff if dealing with a high number of classes
     num_classes = len(np.unique(train_labels))
     if num_classes < 50:
         is_classification = 1
