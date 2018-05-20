@@ -804,9 +804,6 @@ def ensemble_xgboost_predictions(train_features, train_labels, prediction_featur
         
     Outputs:
         - A numpy array of point or class probability predictions
-        
-    TO-DO:
-        - Test binary classification
     '''
     
     # Auto-detecting if it's a classification problem and setting the objective for the model
