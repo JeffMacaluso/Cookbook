@@ -875,9 +875,6 @@ def ensemble_sklearn_predictions(model, train_features, train_labels, prediction
         
     Outputs:
         - A numpy array of point or class probability predictions
-        
-    TO-DO:
-        - Test binary classification
     '''
     from sklearn.base import clone
     
