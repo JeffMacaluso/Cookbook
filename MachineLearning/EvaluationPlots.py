@@ -119,7 +119,7 @@ param_range = [10, 30, 100, 300]
 plot_validation_curve(model, X, y, param_name, param_range)
 
 
-# Ensemble Model Importance
+# Ensemble Model's Feature Importance
 def feature_importance(model):
     '''
     Plots the feature importance for an ensemble model
