@@ -39,28 +39,62 @@ cross_val_score(model, X, y, cv=k_fold, n_jobs=-1)
 
 ### Hyperparameter Tuning
 # Randomized Search
-from sklearn.model_selection import RandomizedSearchCV
-from scipy.stats import randint as sp_randint
+def hyperparameter_random_search(X, y, model=None, parameters=None, num_folds=5, num_iterations=50):
+    '''
+    Performs a random search on hyperparameters and returns the best model
+    
+    Inputs:
+        - X: Training dataset 
+        - y: Training labels
+        - model: A scikit-learn model object
+        - parameters: Parameter distributions for the randomized search
+        - num_folds: The number of folds to use in cross validation
+        - num_iterations: The number of iterations for the randomized search to perform
+        
+    Outputs:
+        - The best model from the randomized search
+    '''
+    # Randomized Search
+    from sklearn.model_selection import RandomizedSearchCV
 
-# Specifying parameters and distributions to sample from
-param_dist = {'max_depth': [3, None],
-              'max_features': sp_randint(1, X.shape[1]),
-              'min_samples_split': sp_randint(2, 11),
-              'min_samples_leaf': sp_randint(1, 11),
-              'bootstrap': [True, False],
-              'criterion': ['gini', 'entropy']}
+    # Providing a parameters for a random forest if parameters are not specified
+    if parameters is None:
+        from scipy.stats import randint as sp_randint
+        
+        print('No parameters provided, using parameters from the function')
+        # Specifying parameters and distributions to sample from
+        parameters = {'max_depth': [3, None],
+                      'max_features': sp_randint(1, X.shape[1]),
+                      'min_samples_split': sp_randint(2, 11),
+                      'min_samples_leaf': sp_randint(1, 11),
+                      'bootstrap': [True, False]}
 
-randomForest = RandomForestClassifier(n_jobs=-1)
+    # Instantiating a model if it isn't provided to the function
+    if model is None:
+        print('No model provided, using a random forest')
+        # Picking between a classifier or regressor based on the number of unique labels
+        if len(np.unique(y)) < 50:
+            from sklearn.ensemble import RandomForestClassifier
+            model = RandomForestClassifier(n_jobs=-1)
+        else:
+            from sklearn.ensemble import RandomForestRegressor
+            model = RandomForestRegressor(n_jobs=-1)
 
-# Performing randomized search
-model = RandomizedSearchCV(randomForest, param_distributions=param_dist,
-                         n_iter=50, n_jobs=-1, cv=5)
-model.fit(X, y)
+    # Performing randomized search
+    print('Performing randomized search for hyperparameter tuning')
+    print('{0} training samples'.format(X.shape[0]))
+    print('{0} iterations'.format(num_iterations))
+    print('{0} cross validation folds'.format(num_folds))
+    model = RandomizedSearchCV(model, param_distributions=parameters,
+                               n_iter=num_iterations, n_jobs=-1, cv=num_folds)
+    model.fit(X, y)
 
-print('Best Estimator:', model.best_estimator_, '\n', 
-      'Best Parameters:', model.best_params_, '\n', 
-      'Best Score:', model.best_score_)
-
+    # Reporting the results
+    print('Best Estimator:\n', model.best_estimator_)
+    print('Best Parameters:', model.best_params_)
+    print('Best Score:', model.best_score_)
+    
+    return model
 # Grid search
 from sklearn.model_selection import GridSearchCV
 
