@@ -116,10 +116,10 @@ print(xgbResults.mean())
 
 # Probability Threshold Search - scikit-learn
 def optimal_probability_cutoff(model, test_dataset, test_labels, max_thresh=0.3, step_size=0.01):
-    """
+    '''
     Finds the optimal probability cutoff to maximize the F1 score
     Returns the optimal probability cutoff, F1 score, and a plot of the results
-    """
+    '''
     from sklearn import metrics
 
     # Prediction probabilities of the test dataset
@@ -156,13 +156,13 @@ optimal_probability_cutoff(model, X_test, y_test)
 
 # Regression
 def initial_regression_test(X, y):
-    """
+    '''
     Tests multiple regression models and gathers performance from cross-validation with a holdout set
     Uses default parameters from sklearn functions for most cases
     
     Outputs: - Dataframe containing RMSE, MAE, and R^2
              - Plots of RMSE/MAE and R^2
-    """
+    '''
     # Splitting between testing and training
     from sklearn.model_selection import train_test_split
     X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.30, random_state=46)
@@ -173,9 +173,9 @@ def initial_regression_test(X, y):
     X_test_norm = preprocessing.normalize(X_test, norm='max', axis=0)  # Normalizing across columns
     
     def get_score(model, norm=False):
-        """
+        '''
         Fits the model and returns a series containing the RMSE, MAE, and R^2
-        """
+        '''
         from sklearn.metrics import mean_squared_error, mean_absolute_error
         import time
 
@@ -246,9 +246,9 @@ def initial_regression_test(X, y):
                             'GradientBoosting': gbtScore, 'nnMLP': nnScore})
     
     def plot_results(results, title=None):
-        """
+        '''
         Formats the results and plots them
-        """
+        '''
         ax = results.plot(kind='barh')
         ax.spines['right'].set_visible(False)  # Removing the right spine
         ax.spines['top'].set_visible(False)  # Removing the top spine    
@@ -271,12 +271,12 @@ initial_regression_test(X, y)
 
 # Classification
 def initial_classification_test(X, y):
-    """
+    '''
     Tests multiple classification models and gathers performance from cross-validation with a holdout set
     
     Outputs: - Dataframe containing Accuracy, F1, Precision, Recall, Support, Log Loss, and AUC (when applicable)
              - Plots of dataframe contents
-    """
+    '''
     # Splitting between testing and training
     from sklearn.model_selection import train_test_split
     X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.30, random_state=46)
@@ -287,10 +287,10 @@ def initial_classification_test(X, y):
     X_test_norm = preprocessing.normalize(X_test, norm='max', axis=0)  # Normalizing across columns
     
     def get_score(model, norm=False):
-        """
+        '''
         Fits the model and returns a series containing the Accuracy, F1, Precision, Recall, and others
         http://scikit-learn.org/stable/modules/model_evaluation.html#classification-metrics
-        """
+        '''
         from sklearn.metrics import precision_recall_fscore_support, log_loss, hinge_loss
         import time
 
@@ -374,9 +374,9 @@ def initial_classification_test(X, y):
                             'GradientBoosting': gbtScore, 'nnMLP': nnScore})
     
     def plot_results(results, title=None):
-        """
+        '''
         Formats the results and plots them
-        """
+        '''
         ax = results.plot(kind='barh')
         ax.spines['right'].set_visible(False)  # Removing the right spine
         ax.spines['top'].set_visible(False)  # Removing the top spine    
@@ -396,9 +396,9 @@ initial_classification_test(X, y)
 ##### Assumption Testing
 # Linear Regression
 def linear_regression_assumptions(features, label, feature_names=None):
-    """
+    '''
     Tests a linear regression on the model to see if assumptions are being met
-    """
+    '''
     from sklearn.linear_model import LinearRegression
     
     # Setting feature names to x1, x2, x3, etc. if they are not defined
@@ -433,11 +433,11 @@ def linear_regression_assumptions(features, label, feature_names=None):
 
     
     def linear_assumption():
-        """
+        '''
         Linearity: Assumes there is a linear relationship between the predictors and
                    the response variable. If not, either a quadratic term or another
                    algorithm should be used.
-        """
+        '''
         print('\n=======================================================================================')
         print('Assumption 1: Linear Relationship between the Target and the Features')
         
@@ -455,11 +455,11 @@ def linear_regression_assumptions(features, label, feature_names=None):
         
         
     def multivariate_normal_assumption(p_value_thresh=0.05):
-        """
+        '''
         Normality: Assumes that the predictors have normal distributions. If they are not normal,
                    a non-linear transformation like a log transformation or box-cox transformation
                    can be performed on the non-normal variable.
-        """
+        '''
         from statsmodels.stats.diagnostic import normal_ad
         print('\n=======================================================================================')
         print('Assumption 2: All variables are multivariate normal')
@@ -489,11 +489,11 @@ def linear_regression_assumptions(features, label, feature_names=None):
         
         
     def multicollinearity_assumption():
-        """
+        '''
         Multicollinearity: Assumes that predictors are not correlated with each other. If there is
                            correlation among the predictors, then either removing prepdictors with
                            high Variance Inflation Factor (VIF) values or 
-        """
+        '''
         from statsmodels.stats.outliers_influence import variance_inflation_factor
         print('\n=======================================================================================')
         print('Assumption 3: Little to no multicollinearity among predictors')
@@ -531,13 +531,13 @@ def linear_regression_assumptions(features, label, feature_names=None):
         
         
     def autocorrelation_assumption():
-        """
+        '''
         Autocorrelation: Assumes that there is no autocorrelation in the residuals. If there is
                          autocorrelation, then there is a patern that is not explained due to
                          the current value being dependent on the previous value.
                          This may be resolved by adding a lag variable of either the dependent
                          variable or some of the predictors.
-        """
+        '''
         from statsmodels.stats.stattools import durbin_watson
         print('\n=======================================================================================')
         print('Assumption 4: No Autocorrelation')
@@ -560,9 +560,9 @@ def linear_regression_assumptions(features, label, feature_names=None):
 
             
     def homoscedasticity_assumption():
-        """
+        '''
         Homoscedasticity: Assumes that the errors exhibit constant variance
-        """
+        '''
         print('\n=======================================================================================')
         print('Assumption 5: Homoscedasticity of Error Terms')
         print('Residuals should have relative constant variance')
@@ -591,9 +591,9 @@ linear_regression_assumptions(X, y, feature_names=dataset.feature_names)
 
 # Residuals
 def plot_residuals(model, values, labels):
-    """
+    '''
     Creates two plots: Actual vs. Predicted and Residuals
-    """
+    '''
     # Calculating the predictions and residuals
     predictions = model.predict(values)
     df_results = pd.DataFrame({'Actual': labels, 'Predicted': predictions})
@@ -624,9 +624,9 @@ plot_residuals(model, X, y)
 
 # Learning Curve
 def plot_learning_curve(model, data, labels):
-    """
+    '''
     Plots the learning curve of a model using 3-fold Cross Validation
-    """
+    '''
     from sklearn.model_selection import learning_curve
     learningCurve = learning_curve(model, X, y, cv=3, n_jobs=-1)
     trainScores = learningCurve[1].mean(axis=1)
@@ -652,9 +652,9 @@ plot_learning_curve(model, X, y)
 
 # Validation Curve
 def plot_validation_curve(model, data, labels, param_name, param_values):
-    """
+    '''
     Plots the validation curve of a model using 3-fold Cross Validation
-    """
+    '''
     from sklearn.model_selection import validation_curve
     validationCurve = validation_curve(model, X, y, cv=3, param_name=param_name,
                                        param_range=param_values, n_jobs=-1)
@@ -685,9 +685,9 @@ plot_validation_curve(model, X, y, param_name, param_range)
 
 # Ensemble Model Importance
 def feature_importance(model):
-    """
+    '''
     Plots the feature importance for an ensemble model
-    """
+    '''
     feature_importance = model.feature_importances_
     feature_importance = 100.0 * (feature_importance / feature_importance.max())
     sorted_idx = np.argsort(feature_importance)
