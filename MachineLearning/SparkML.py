@@ -90,7 +90,7 @@ crossval = CrossValidator(estimator=model,
 cvModel = crossval.fit(trainingDF)
 
 # Sliding window for time series model evaluation
-def sliding_test(dataframe, feature_columns, num_windows=5, test_size=0.2):
+def sliding_window_evaluation(dataframe, feature_columns, num_windows=5, test_size=0.2):
     '''
     Takes an input dataframe, splits it into partitions, and performs a sliding window where
     each partition is split between a train/test set and a linear regression is trained
@@ -149,7 +149,7 @@ def sliding_test(dataframe, feature_columns, num_windows=5, test_size=0.2):
         
         
 feature_columns = ['previous_hour_price', 'previous_hour_high_low_range', 'previous_hour_volume']
-sliding_test(dataframe=test, feature_columns=feature_columns, num_windows=3, test_size=0.2)
+sliding_window_evaluation(dataframe=test, feature_columns=feature_columns, num_windows=3, test_size=0.2)
 
 #################################################################################################################
 ##### Hyperparameter Tuning
