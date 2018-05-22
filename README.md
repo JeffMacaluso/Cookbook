@@ -17,6 +17,10 @@ Personal reference scripts for commonly used code
         - [Assumption Testing](https://github.com/JeffMacaluso/Cookbook/blob/f67d738d9d1b998e816a9cb5ead06ec71dd8e98b/MachineLearning/Miscellaneous.py#L25)
         - [Initial Model Performance Testing](https://github.com/JeffMacaluso/Cookbook/blob/f67d738d9d1b998e816a9cb5ead06ec71dd8e98b/MachineLearning/Miscellaneous.py#L219)
     - **[Spark ML](https://github.com/JeffMacaluso/Cookbook/blob/master/MachineLearning/SparkML.py):** Building spark.ml models
+        - [Data Prepartion](https://github.com/JeffMacaluso/Cookbook/blob/5a86c309d58b0fe2231fe9d676f1840a924fa468/MachineLearning/SparkML.py#L9)
+        - [Cross Validation](https://github.com/JeffMacaluso/Cookbook/blob/5a86c309d58b0fe2231fe9d676f1840a924fa468/MachineLearning/SparkML.py#L60)
+        - [Hyperparameter Tuning](https://github.com/JeffMacaluso/Cookbook/blob/5a86c309d58b0fe2231fe9d676f1840a924fa468/MachineLearning/SparkML.py#L154)
+        - [Model Diagnostics](https://github.com/JeffMacaluso/Cookbook/blob/5a86c309d58b0fe2231fe9d676f1840a924fa468/MachineLearning/SparkML.py#L219)
 - **[Exploratory Data Analysis & Pre-Processing](https://github.com/JeffMacaluso/Cookbook/blob/master/EDA%26Preprocessing.py):** Preparing data for machine learning tasks
     - [EDA Report](https://github.com/JeffMacaluso/Cookbook/blob/eaad1f874fd168f6a1aff773ee77ca3d16a7aee2/EDA%26Preprocessing.py#L23)
     - [Missing Values](https://github.com/JeffMacaluso/Cookbook/blob/eaad1f874fd168f6a1aff773ee77ca3d16a7aee2/EDA%26Preprocessing.py#L32)
@@ -26,7 +30,3 @@ Personal reference scripts for commonly used code
     - [Lemmatizing (similar to Stemming)](https://github.com/JeffMacaluso/Cookbook/blob/eaad1f874fd168f6a1aff773ee77ca3d16a7aee2/NLP.py#L25)
     - [TF-IDF](https://github.com/JeffMacaluso/Cookbook/blob/eaad1f874fd168f6a1aff773ee77ca3d16a7aee2/NLP.py#L43)
 - **[Deep Learning (CNN)](https://nbviewer.jupyter.org/github/JeffMacaluso/Cookbook/blob/master/DeepLearning-CNN.ipynb):** Convolutional neural networks in Keras, CNTK, PyTorch, and TensorFlow
-    - [Data Prepartion](https://github.com/JeffMacaluso/Cookbook/blob/5a86c309d58b0fe2231fe9d676f1840a924fa468/MachineLearning/SparkML.py#L9)
-    - [Cross Validation](https://github.com/JeffMacaluso/Cookbook/blob/5a86c309d58b0fe2231fe9d676f1840a924fa468/MachineLearning/SparkML.py#L60)
-    - [Hyperparameter Tuning](https://github.com/JeffMacaluso/Cookbook/blob/5a86c309d58b0fe2231fe9d676f1840a924fa468/MachineLearning/SparkML.py#L154)
-    - [Model Diagnostics](https://github.com/JeffMacaluso/Cookbook/blob/5a86c309d58b0fe2231fe9d676f1840a924fa468/MachineLearning/SparkML.py#L219)
