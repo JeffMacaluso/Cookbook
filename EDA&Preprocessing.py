@@ -169,7 +169,9 @@ def fit_PCA(X, num_components=3):
         - num_components: The number of principal components desired
     
     Outputs:
-        - An array of the principal copmonents
+        - An array of the principal components
+        
+    TODO: Add check if data is already normalized
     '''
     from sklearn import preprocessing
     from sklearn.decomposition import PCA
