@@ -158,3 +158,43 @@ df['TargetVariable'].astype('category').cat.codes
 from sklearn import preprocessing
 min_max_scaler = preprocessing.MinMaxScaler()
 X_norm = min_max_scaler.fit_transform(X)  # Normalizing across columns
+
+# Principal Component Analysis (PCA)
+def fit_PCA(X, num_components=3):
+    '''
+    Performs min-max normalization and PCA transformation on the input data array
+    
+    Inputs:
+        - X: An array of values to perform PCA on
+        - num_components: The number of principal components desired
+    
+    Outputs:
+        - An array of the principal copmonents
+    '''
+    from sklearn import preprocessing
+    from sklearn.decomposition import PCA
+    
+    # Checking if the input is a numpy array and converting it if not
+    if type(X) != np.ndarray:
+        X = np.array(X)
+    
+    # Normalizing data before PCA
+    min_max_scaler = preprocessing.MinMaxScaler()
+    X_norm = min_max_scaler.fit_transform(X)
+    
+    # Performing PCA
+    pca = PCA(n_components=num_components)
+    pca.fit(X_norm)
+    
+    # Reporting explained variance
+    explained_variance = pca.explained_variance_ratio_ * 100
+    print('Total variance % explained:', sum(explained_variance))
+    print()
+    print('Variance % explained by principal component:')
+    for principal_component in range(len(explained_variance)):
+        print(principal_component, ':', explained_variance[principal_component])
+        
+    # Transforming the data before returning
+    principal_components = pca.transform(X_norm)
+    return principal_components
+ 
