@@ -156,4 +156,5 @@ df['TargetVariable'].astype('category').cat.codes
 
 # Normalizing
 from sklearn import preprocessing
-X_norm = preprocessing.normalize(X, norm='max', axis=0)  # Normalizing across columns
+min_max_scaler = preprocessing.MinMaxScaler()
+X_norm = min_max_scaler.fit_transform(X)  # Normalizing across columns
