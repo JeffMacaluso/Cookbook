@@ -25,6 +25,7 @@ Personal reference scripts for commonly used code
     - [EDA Report](https://github.com/JeffMacaluso/Cookbook/blob/master/EDA%26Preprocessing.py#L23)
     - [Missing Values](https://github.com/JeffMacaluso/Cookbook/blob/master/EDA%26Preprocessing.py#L32)
     - [Pre-processing](https://github.com/JeffMacaluso/Cookbook/blob/master/EDA%26Preprocessing.py#L148)
+    - [Principal Component Analysis (PCA)](https://github.com/JeffMacaluso/Cookbook/blob/master/EDA%26Preprocessing.py#L162)
 - **[Natural Language Processing](https://github.com/JeffMacaluso/Cookbook/blob/master/NLP.py):** NLTK natural language processing tasks
     - [Tokenizing](https://github.com/JeffMacaluso/Cookbook/blob/master/NLP.py#L11)
     - [Lemmatizing (similar to Stemming)](https://github.com/JeffMacaluso/Cookbook/blob/master/NLP.py#L25)
