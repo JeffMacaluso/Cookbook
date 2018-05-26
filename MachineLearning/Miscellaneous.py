@@ -163,7 +163,7 @@ def linear_regression_assumptions(features, label, feature_names=None):
     def autocorrelation_assumption():
         '''
         Autocorrelation: Assumes that there is no autocorrelation in the residuals. If there is
-                         autocorrelation, then there is a patern that is not explained due to
+                         autocorrelation, then there is a pattern that is not explained due to
                          the current value being dependent on the previous value.
                          This may be resolved by adding a lag variable of either the dependent
                          variable or some of the predictors.
