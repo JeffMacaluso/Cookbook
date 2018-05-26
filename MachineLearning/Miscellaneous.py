@@ -121,8 +121,8 @@ def linear_regression_assumptions(features, label, feature_names=None):
     def multicollinearity_assumption():
         '''
         Multicollinearity: Assumes that predictors are not correlated with each other. If there is
-                           correlation among the predictors, then either removing prepdictors with
-                           high Variance Inflation Factor (VIF) values or 
+                           correlation among the predictors, then either remove prepdictors with high
+                           Variance Inflation Factor (VIF) values or perform dimensionality reduction
         '''
         from statsmodels.stats.outliers_influence import variance_inflation_factor
         print('\n=======================================================================================')
