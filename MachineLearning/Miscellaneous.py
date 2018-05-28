@@ -26,9 +26,9 @@ pd.set_option('display.max_columns', None)
 ##### Assumption Testing
 # Linear Regression
 def linear_regression_assumptions(features, label, feature_names=None):
-    '''
+    """
     Tests a linear regression on the model to see if assumptions are being met
-    '''
+    """
     from sklearn.linear_model import LinearRegression
     
     # Setting feature names to x1, x2, x3, etc. if they are not defined
@@ -63,11 +63,11 @@ def linear_regression_assumptions(features, label, feature_names=None):
 
     
     def linear_assumption():
-        '''
+        """
         Linearity: Assumes there is a linear relationship between the predictors and
                    the response variable. If not, either a quadratic term or another
                    algorithm should be used.
-        '''
+        """
         print('\n=======================================================================================')
         print('Assumption 1: Linear Relationship between the Target and the Features')
         
@@ -85,16 +85,20 @@ def linear_regression_assumptions(features, label, feature_names=None):
         
         
     def multivariate_normal_assumption(p_value_thresh=0.05):
-        '''
+        """
         Normality: Assumes that the predictors have normal distributions. If they are not normal,
                    a non-linear transformation like a log transformation or box-cox transformation
                    can be performed on the non-normal variable.
-        '''
+        """
         from statsmodels.stats.diagnostic import normal_ad
-        print('\n=======================================================================================')
         print('Assumption 2: All variables are multivariate normal')
+        print()
+    
+        # Calculating residuals for the Anderson-Darling test
+        df_results = calculate_residuals(model, features, label)
+    
         print('Using the Anderson-Darling test for normal distribution')
-        print('p-values from the test - below 0.05 generally means normality:')
+        print('p-values from the test - below 0.05 generally means non-normal:')
         print()
         non_normal_variables = 0
         
@@ -103,27 +107,43 @@ def linear_regression_assumptions(features, label, feature_names=None):
             p_value = normal_ad(features[:, feature])[1]
             
             # Adding to total count of non-normality if p-value exceeds threshold
-            if p_value > p_value_thresh:
+            if p_value < p_value_thresh:
                 non_normal_variables += 1
             
             # Printing p-values from the test
             print('{0}: {1}'.format(feature_names[feature], p_value))
-                    
-        print('\n{0} non-normal variables'.format(non_normal_variables))
-        print()
+    
+        # Performing the test on the label
+        p_value = normal_ad(label)[1]
+        if p_value < p_value_thresh:
+            non_normal_variables += 1
+        print('Label: {0}'.format(p_value))
 
-        if non_normal_variables == 0:
+        # Performing the test on the residuals
+        residuals_p_value = normal_ad(df_results['Residuals'])[1]
+        print('Residuals: {0}'.format(residuals_p_value))
+    
+        print('\n{0} non-normal variables'.format(non_normal_variables))
+    
+        # Reporting the normality of the residuals
+        if residuals_p_value < p_value_thresh:
+            print('Residuals are not normally distributed')
+        else:
+            print('Residuals are normally distributed')
+    
+        print()
+        if non_normal_variables == 0 and residuals_p_value > p_value_thresh:
             print('Assumption satisfied')
         else:
             print('Assumption not satisfied')
         
         
     def multicollinearity_assumption():
-        '''
+        """
         Multicollinearity: Assumes that predictors are not correlated with each other. If there is
                            correlation among the predictors, then either remove prepdictors with high
                            Variance Inflation Factor (VIF) values or perform dimensionality reduction
-        '''
+        """
         from statsmodels.stats.outliers_influence import variance_inflation_factor
         print('\n=======================================================================================')
         print('Assumption 3: Little to no multicollinearity among predictors')
@@ -161,13 +181,13 @@ def linear_regression_assumptions(features, label, feature_names=None):
         
         
     def autocorrelation_assumption():
-        '''
+        """
         Autocorrelation: Assumes that there is no autocorrelation in the residuals. If there is
                          autocorrelation, then there is a pattern that is not explained due to
                          the current value being dependent on the previous value.
                          This may be resolved by adding a lag variable of either the dependent
                          variable or some of the predictors.
-        '''
+        """
         from statsmodels.stats.stattools import durbin_watson
         print('\n=======================================================================================')
         print('Assumption 4: No Autocorrelation')
@@ -190,9 +210,9 @@ def linear_regression_assumptions(features, label, feature_names=None):
 
             
     def homoscedasticity_assumption():
-        '''
+        """
         Homoscedasticity: Assumes that the errors exhibit constant variance
-        '''
+        """
         print('\n=======================================================================================')
         print('Assumption 5: Homoscedasticity of Error Terms')
         print('Residuals should have relative constant variance')
