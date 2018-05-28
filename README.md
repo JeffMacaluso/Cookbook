@@ -15,7 +15,7 @@ Personal reference scripts for commonly used code
         - [Ensemble Model's Feature Importance](https://github.com/JeffMacaluso/Cookbook/blob/master/MachineLearning/EvaluationPlots.py#L122)
     - **[Miscellaneous](https://github.com/JeffMacaluso/Cookbook/blob/master/MachineLearning/Miscellaneous.py):** Relevant code that doesn't belong in the other sections
         - [Assumption Testing](https://github.com/JeffMacaluso/Cookbook/blob/master/MachineLearning/Miscellaneous.py#L25)
-        - [Initial Model Performance Testing](https://github.com/JeffMacaluso/Cookbook/blob/master/MachineLearning/Miscellaneous.py#L219)
+        - [Initial Model Performance Testing](https://github.com/JeffMacaluso/Cookbook/blob/master/MachineLearning/Miscellaneous.py#L239)
     - **[Spark ML](https://github.com/JeffMacaluso/Cookbook/blob/master/MachineLearning/SparkML.py):** Building spark.ml models
         - [Data Prepartion](https://github.com/JeffMacaluso/Cookbook/blob/master/MachineLearning/SparkML.py#L9)
         - [Cross Validation](https://github.com/JeffMacaluso/Cookbook/blob/master/MachineLearning/SparkML.py#L60)
