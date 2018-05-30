@@ -146,6 +146,36 @@ def predict_missing_values(data, column, correlationThresh=0.5, cross_validation
 df[colName] = predict_missing_values(df, colName)
 
 #################################################################################################################
+##### Outliers
+
+# Detecting outliers with Interquartile Range (IQR)
+# Note: The function in its current form is taken from Chris Albon's Machine Learning with Python Cookbook
+def iqr_indicies_of_outliers(x):
+    q1, q3 = np.percentile(x, [25, 75])
+    iqr = q3 - q1
+    lower_bound = q1 - (iqr * 1.5)
+    upper_bound = q3 + (iqr * 1.5)
+    return np.where((x > upper_bound) | (x < lower_bound))
+
+
+# Detecting outliers with the Elliptical Envelope
+# Note: The function in its current form is taken from Chris Albon's Machine Learning with Python Cookbook
+def ellipses_indices_of_outliers(features, contamination=0.1):
+    from sklearn.covariance import EllipticEnvelope
+    
+    # Creating and fitting the detector
+    outlier_detector = EllipticalEnvelope(contamination=contamination)
+    outlier_detector.fit(features)
+    
+    # Predicting outliers and outputting an array with 1 if it is an outlier
+    outliers = outlier_detector.predict(features)
+    outliers = np.where(outliers == -1, 1, 0)
+    
+
+# TODO: - Make functions for outlier reports
+#       - Add docstrings to functions
+
+#################################################################################################################
 ##### Preprocessing
 
 # One-hot encoding multiple columns
