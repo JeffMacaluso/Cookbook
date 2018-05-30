@@ -140,11 +140,21 @@ def sliding_window_evaluation(dataframe, feature_columns, num_windows=5, test_si
         # Gathering evaluation and summary metrics
         modelSummary = model.summary
         
+        # Creating a plot of the predictions and actuals to see if there is a significant lag
+        predictDF = model.transform(testWindow)  # Generating predictions
+        fig, ax = plt.subplots()
+        ax.plot(predictDF.select('label').collect(), label='Label')
+        ax.plot(predictDF.select('prediction').collect(), label='Prediction')
+        plt.legend()
+        plt.title('Test Set: Predictions and Actuals')
+        
+        # Reporting results
         print('Window', window)
         print('Training Size:', trainWindow.count())
         print('Testing Size:', testWindow.count())
         print("r2: %f" % modelSummary.r2)
         print("Training RMSE: %f" % modelSummary.rootMeanSquaredError)
+        display(fig)  # Plot of actuals vs predictions
         print()
         
         
