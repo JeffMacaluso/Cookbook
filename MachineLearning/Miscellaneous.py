@@ -46,8 +46,9 @@ def linear_regression_assumptions(features, label, feature_names=None):
     
     # Returning linear regression R^2 and coefficients before performing diagnostics
     r2 = model.score(features, label)
-    print('\nR^2:', r2)
-    print('\nCoefficients')
+    print()
+    print('R^2:', r2, '\n')
+    print('Coefficients')
     print('-------------------------------------')
     print('Intercept:', model.intercept_)
     
@@ -120,6 +121,7 @@ def linear_regression_assumptions(features, label, feature_names=None):
             print('Assumption satisfied')
         else:
             print('Assumption not satisfied')
+            print()
             print('Confidence intervals will likely be affected')
             print('Try performing nonlinear transformations on variables')
         
@@ -140,7 +142,7 @@ def linear_regression_assumptions(features, label, feature_names=None):
         # Plotting the heatmap
         plt.figure(figsize = (10,8))
         sns.heatmap(pd.DataFrame(features, columns=feature_names).corr(), annot=True)
-        plt.title('Correlation among predictors')
+        plt.title('Correlation of Variables')
         plt.show()
         
         print('Variance Inflation Factors (VIF)')
@@ -192,21 +194,21 @@ def linear_regression_assumptions(features, label, feature_names=None):
         print('0 to 2< is positive autocorrelation')
         print('>2 to 4 is negative autocorrelation')
         print('-------------------------------------')
+        
         durbinWatson = durbin_watson(df_results['Residuals'])
         print('Durbin-Watson:', durbinWatson)
+        
         if durbinWatson < 1.5:
-            print('Signs of positive autocorrelation')
-            print('\nAssumption not satisfied')
-            print()
+            print('Signs of positive autocorrelation', '\n')
+            print('Assumption not satisfied', '\n')
             print('Consider adding lag variables')
         elif durbinWatson > 2.5:
-            print('Signs of negative autocorrelation')
-            print('\nAssumption not satisfied')
-            print()
+            print('Signs of negative autocorrelation', '\n')
+            print('Assumption not satisfied', '\n')
             print('Consider adding lag variables')
         else:
-            print('Little to no autocorrelation')
-            print('\nAssumption satisfied')
+            print('Little to no autocorrelation', '\n')
+            print('Assumption satisfied')
 
             
     def homoscedasticity_assumption():
@@ -234,7 +236,7 @@ def linear_regression_assumptions(features, label, feature_names=None):
     multicollinearity_assumption()
     autocorrelation_assumption()
     homoscedasticity_assumption()
-  
+
 
 linear_regression_assumptions(X, y, feature_names=dataset.feature_names)
 
