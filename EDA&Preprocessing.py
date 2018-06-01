@@ -190,13 +190,14 @@ min_max_scaler = preprocessing.MinMaxScaler()
 X_norm = min_max_scaler.fit_transform(X)  # Normalizing across columns
 
 # Principal Component Analysis (PCA)
-def fit_PCA(X, num_components=3):
+def fit_PCA(X, num_components=0.99):
     '''
     Performs min-max normalization and PCA transformation on the input data array
     
     Inputs:
         - X: An array of values to perform PCA on
-        - num_components: The number of principal components desired
+        - num_components: If >1, the number of principal components desired
+                          If <1, the percentage of variance explained desired
     
     Outputs:
         - An array of the principal components
