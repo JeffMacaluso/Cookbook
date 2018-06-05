@@ -169,24 +169,28 @@ def iqr_indicies_of_outliers(X):
 
 
 # Detecting outliers with the Elliptical Envelope
-# Note: The function in its current form is taken from Chris Albon's Machine Learning with Python Cookbook
 def ellipses_indices_of_outliers(X, contamination=0.1):
     '''
     Detects outliers using the elliptical envelope method
     
-    Input: An array of a variable to detect outliers for
+    Input: An array of all variables to detect outliers for
     Output: An array with indices of detected outliers
     '''
     from sklearn.covariance import EllipticEnvelope
     
+    # Testing if there are an adequate number of features
+    if X.shape[0] < X.shape[1] ** 2.:
+        print('Will not perform well. Reduce the dimensionality and try again.')
+        return
+    
     # Creating and fitting the detector
-    outlier_detector = EllipticalEnvelope(contamination=contamination)
+    outlier_detector = EllipticEnvelope(contamination=contamination)
     outlier_detector.fit(X)
     
     # Predicting outliers and outputting an array with 1 if it is an outlier
     outliers = outlier_detector.predict(X)
-    outliers = np.where(outliers == -1, 1, 0)
-    return outliers
+    outlier_indices = np.where(outliers == -1)
+    return outlier_indices
 
 
 # Detecting outliers with Z scores
