@@ -178,6 +178,17 @@ def ellipses_indices_of_outliers(X, contamination=0.1):
     '''
     from sklearn.covariance import EllipticEnvelope
     
+    # Copying to prevent changes to the input array
+    X = X.copy()
+    
+    # Dropping categorical columns
+    non_categorical = []
+    for feature in range(X.shape[1]):
+        num_unique_values = len(np.unique(X[:, feature]))
+        if num_unique_values > 30:
+            non_categorical.append(feature)
+    X = X[:, non_categorical]  # Subsetting to columns without categorical indexes
+
     # Testing if there are an adequate number of features
     if X.shape[0] < X.shape[1] ** 2.:
         print('Will not perform well. Reduce the dimensionality and try again.')
