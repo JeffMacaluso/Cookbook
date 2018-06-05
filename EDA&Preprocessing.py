@@ -153,7 +153,7 @@ df[colName] = predict_missing_values(df, colName)
 
 # Detecting outliers with Interquartile Range (IQR)
 # Note: The function in its current form is taken from Chris Albon's Machine Learning with Python Cookbook
-def iqr_indicies_of_outliers(X):
+def iqr_indices_of_outliers(X):
     '''
     Detects outliers using the interquartile range (IQR) method
     
@@ -205,7 +205,7 @@ def ellipses_indices_of_outliers(X, contamination=0.1):
 
 
 # Detecting outliers with Z scores
-def z_score_indicies_of_outliers(X, threshold=3):
+def z_score_indices_of_outliers(X, threshold=3):
     '''
     Detects outliers using the Z score method method
     
@@ -229,6 +229,7 @@ def outlier_report(features):
           - Finish commenting function
           - Re-name features to dataframe to make it more intuitive
           - Add additional input parameters for different outlier techniques
+          - Fix totals for single variable outlier report
     '''
     
     # Converting to a pandas dataframe if it is an array
@@ -248,7 +249,8 @@ def outlier_report(features):
         if num_unique_values < 30:
             features = features.drop(column, axis=1)
     
-    def iqr_indicies_of_outliers(X):
+    # Functions for performing outlier detection
+    def iqr_indices_of_outliers(X):
         '''
         TODO: Write Docstring
         '''
@@ -256,7 +258,8 @@ def outlier_report(features):
         iqr = q3 - q1
         lower_bound = q1 - (iqr * 1.5)
         upper_bound = q3 + (iqr * 1.5)
-        return np.where((X > upper_bound) | (X < lower_bound))
+        outlier_indices = np.where((X > upper_bound) | (X < lower_bound))
+        return outlier_indices
     
     def z_score_indices_of_outliers(X, threshold=3):
         '''
@@ -265,35 +268,79 @@ def outlier_report(features):
         X_mean = np.mean(X)
         X_stdev = np.std(X)
         z_scores = [(y - X_mean) / X_stdev for y in X]
-        return np.where(np.abs(z_scores) > threshold)
+        outlier_indices = np.where(np.abs(z_scores) > threshold)
+        return outlier_indices
+    
+    def percentile_indices_of_outliers(X, threshold=0.95):
+        '''
+        TODO: Write Docstring
+        '''
+        diff = (1 - threshold) / 2.0
+        minval, maxval = np.percentile(X, [diff, 100 - diff])
+        outlier_indices = np.where((X < minval) | (X > maxval))
+        return outlier_indices
+    
+    def ellipses_indices_of_outliers(X, contamination=0.1):
+        '''
+        Detects outliers using the elliptical envelope method
+    
+        Input: An array of all variables to detect outliers for
+        Output: An array with indices of detected outliers
+        '''
+        from sklearn.covariance import EllipticEnvelope
+    
+        # Creating and fitting the detector
+        outlier_detector = EllipticEnvelope(contamination=contamination)
+        outlier_detector.fit(X)
+    
+        # Predicting outliers and outputting an array with 1 if it is an outlier
+        outliers = outlier_detector.predict(X)
+        outlier_indices = np.where(outliers == -1)
+        return outlier_indices
 
+    
+    # Dictionaries for individual features to be packaged into a master dictionary
     iqr_outlier_indices = {}
     z_score_outlier_indices = {}
-    multiple_outlier_indices = {}
-    
+    percentile_outlier_indices = {}
+    multiple_outlier_indices = {}  # Indices with two or more detections
     
     print('Detecting outliers', '\n')
     
-    results = pd.DataFrame(columns=['IQR', 'Z Score', 'Multiple'])
+    # Creating an empty data frame to fill with results
+    results = pd.DataFrame(columns=['IQR', 'Z Score', 'Percentile', 'Multiple'])
     
+    # Single column outlier tests
+    print('Single feature outlier tests')
     for feature in range(features.shape[1]):
         
+        # Gathering feature names for use in output dictionary and results dataframe
         feature_name = features.columns[feature]
         
-        iqr_outliers = iqr_indicies_of_outliers(features.iloc[:, feature])[0]
+        # Finding outliers
+        iqr_outliers = iqr_indices_of_outliers(features.iloc[:, feature])[0]
         z_score_outliers = z_score_indices_of_outliers(features.iloc[:, feature])[0]
+        percentile_outliers = percentile_indices_of_outliers(features.iloc[:, feature])[0]
         multiple_outliers = np.intersect1d(iqr_outliers, z_score_outliers)
         
+        # Adding to the empty dictionaries
         iqr_outlier_indices[feature_name] = iqr_outliers
         z_score_outlier_indices[feature_name] = z_score_outliers
+        percentile_outlier_indices[feature_name] = percentile_outliers
         multiple_outlier_indices[feature_name] = multiple_outliers
         
         # Adding to results dataframe
         outlier_counts = {'IQR': len(iqr_outliers),
                           'Z Score': len(z_score_outliers),
+                          'Percentile': len(percentile_outliers),
                           'Multiple': len(multiple_outliers)}
-        outlier_counts_ser = pd.Series(outlier_counts, name=feature_name)
-        results = results.append(outlier_counts_ser)
+        outlier_counts_series = pd.Series(outlier_counts, name=feature_name)
+        results = results.append(outlier_counts_series)
+    
+    # Calculating the subtotal of outliers found
+    results_subtotal = results.sum()
+    results_subtotal.name = 'Total'
+    results = results.append(results_subtotal)
     
     # Calculating the percent of total values in each column
     num_observations = features.shape[0]
@@ -302,12 +349,21 @@ def outlier_report(features):
     results['Multiple %'] = results['Multiple'] / num_observations
     
     # Printing the results dataframe as a table
-    print(results)
+    print(results, '\n')
     
+    # All column outlier tests
+    print('All feature outlier tests')
+    ellipses_outlier_indices = ellipses_indices_of_outliers(features)
+    print('Ellipses: {0}'.format(len(ellipses_outlier_indices[0])))
+    
+    # Putting together the final dictionary for output
     all_outlier_indices = {}
+    all_outlier_indices['Ellipses'] = ellipses_outlier_indices
     all_outlier_indices['IQR'] = iqr_outlier_indices
     all_outlier_indices['Z Score'] = z_score_outlier_indices
+    all_outlier_indices['Percentile'] = percentile_outlier_indices
     all_outlier_indices['Multiple'] = multiple_outlier_indices
+    
     return all_outlier_indices
 
         
