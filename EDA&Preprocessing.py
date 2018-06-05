@@ -149,7 +149,7 @@ df[colName] = predict_missing_values(df, colName)
 ##### Outliers
 
 # TODO: - Add docstrings to functions
-#       - Add other functions (Z score, GESD, etc.)
+#       - Add other functions (GESD, local outlier factor, isolation forests, etc.)
 
 # Detecting outliers with Interquartile Range (IQR)
 # Note: The function in its current form is taken from Chris Albon's Machine Learning with Python Cookbook
@@ -230,6 +230,7 @@ def outlier_report(features):
           - Re-name features to dataframe to make it more intuitive
           - Add additional input parameters for different outlier techniques
           - Fix totals for single variable outlier report
+          - Add local outlier factor, isolation forests, and one class SVM
     '''
     
     # Converting to a pandas dataframe if it is an array
