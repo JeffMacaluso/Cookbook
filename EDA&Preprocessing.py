@@ -242,6 +242,36 @@ def isolator_forest_indices_of_outliers(X, contamination=0.1, n_estimators=100):
         if num_unique_values > 30:
             non_categorical.append(feature)
     X = X[:, non_categorical]  # Subsetting to columns without categorical indexes
+    
+    # Creating and fitting the detector
+    outlier_detector = IsolationForest(contamination=contamination, n_estimators=n_estimators)
+    outlier_detector.fit(X)
+    
+    # Predicting outliers and outputting an array with 1 if it is an outlier
+    outliers = outlier_detector.predict(X)
+    outlier_indices = np.where(outliers == -1)
+    return outlier_indices
+
+# Detecting outliers with the One Class SVM method
+def one_class_svm_indices_of_outliers(X):
+    '''
+    Detects outliers using the one class SVM method
+    
+    Input: An array of all variables to detect outliers for
+    Output: An array with indices of detected outliers
+    '''
+    from sklearn.svm import OneClassSVM
+    
+    # Copying to prevent changes to the input array
+    X = X.copy()
+    
+    # Dropping categorical columns
+    non_categorical = []
+    for feature in range(X.shape[1]):
+        num_unique_values = len(np.unique(X[:, feature]))
+        if num_unique_values > 30:
+            non_categorical.append(feature)
+    X = X[:, non_categorical]  # Subsetting to columns without categorical indexes
 
     # Testing if there are an adequate number of features
     if X.shape[0] < X.shape[1] ** 2.:
@@ -249,7 +279,7 @@ def isolator_forest_indices_of_outliers(X, contamination=0.1, n_estimators=100):
         return
     
     # Creating and fitting the detector
-    outlier_detector = IsolationForest(contamination=contamination, n_estimators=n_estimators)
+    outlier_detector = OneClassSVM()
     outlier_detector.fit(X)
     
     # Predicting outliers and outputting an array with 1 if it is an outlier
