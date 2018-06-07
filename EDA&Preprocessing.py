@@ -289,37 +289,36 @@ def one_class_svm_indices_of_outliers(X):
 
 
 # Detecting all outliers in a dataframe using multiple methods
-def outlier_report(features):
+def outlier_report(dataframe, z_threshold=3, per_threshold=0.95, contamination=0.1, n_trees=100):
     '''
     TODO: - Write Docstring
           - Finish commenting function
-          - Re-name features to dataframe to make it more intuitive
-          - Add additional input parameters for different outlier techniques
-          - Fix totals for single variable outlier report
-          - Add local outlier factor, isolation forests, and one class SVM
     '''
     
     # Converting to a pandas dataframe if it is an array
-    if type(features) != 'pandas.core.frame.DataFrame':
+    if type(dataframe) != 'pandas.core.frame.DataFrame':
         try:
-            features = pd.DataFrame(features)
+            dataframe = pd.DataFrame(dataframe)
         except:
             return 'Must be either a dataframe or a numpy array'
     
     # Creating a copy to avoid fidelity issues
-    features = features.copy()
+    dataframe = dataframe.copy()
     
     # Dropping categorical columns
-    features = features.select_dtypes(exclude=['bool_'])
-    for column in features.columns:
-        num_unique_values = len(features[column].unique())
+    dataframe = dataframe.select_dtypes(exclude=['bool_'])
+    for column in dataframe.columns:
+        num_unique_values = len(dataframe[column].unique())
         if num_unique_values < 30:
-            features = features.drop(column, axis=1)
+            dataframe = dataframe.drop(column, axis=1)
     
     # Functions for performing outlier detection
     def iqr_indices_of_outliers(X):
         '''
-        TODO: Write Docstring
+        Determines outliers with the interquartile range (IQR) method
+    
+        Input: An array of one variable to detect outliers for
+        Output: An array with indices of detected outliers
         '''
         q1, q3 = np.percentile(X, [25, 75])
         iqr = q3 - q1
@@ -328,26 +327,32 @@ def outlier_report(features):
         outlier_indices = np.where((X > upper_bound) | (X < lower_bound))
         return outlier_indices
     
-    def z_score_indices_of_outliers(X, threshold=3):
+    def z_score_indices_of_outliers(X):
         '''
-        TODO: Write Docstring
+        Determines outliers based off of the Z score
+    
+        Input: An array of one variable to detect outliers for
+        Output: An array with indices of detected outliers
         '''
         X_mean = np.mean(X)
         X_stdev = np.std(X)
         z_scores = [(y - X_mean) / X_stdev for y in X]
-        outlier_indices = np.where(np.abs(z_scores) > threshold)
+        outlier_indices = np.where(np.abs(z_scores) > z_threshold)
         return outlier_indices
     
-    def percentile_indices_of_outliers(X, threshold=0.95):
+    def percentile_indices_of_outliers(X):
         '''
-        TODO: Write Docstring
+        Determines outliers based off of percentiles
+    
+        Input: An array of one variable to detect outliers for
+        Output: An array with indices of detected outliers
         '''
-        diff = (1 - threshold) / 2.0
+        diff = (1 - per_threshold) / 2.0
         minval, maxval = np.percentile(X, [diff, 100 - diff])
         outlier_indices = np.where((X < minval) | (X > maxval))
         return outlier_indices
     
-    def ellipses_indices_of_outliers(X, contamination=0.1):
+    def ellipses_indices_of_outliers(X):
         '''
         Detects outliers using the elliptical envelope method
     
@@ -364,7 +369,44 @@ def outlier_report(features):
         outliers = outlier_detector.predict(X)
         outlier_indices = np.where(outliers == -1)
         return outlier_indices
-
+    
+    def isolation_forest_indices_of_outliers(X):
+        '''
+        Detects outliers using the isolation forest method
+    
+        Input: An array of all variables to detect outliers for
+        Output: An array with indices of detected outliers
+        '''
+        from sklearn.ensemble import IsolationForest
+    
+        # Creating and fitting the detector
+        outlier_detector = IsolationForest(n_estimators=n_trees,
+                                           contamination=contamination)
+        outlier_detector.fit(X)
+    
+        # Predicting outliers and outputting an array with 1 if it is an outlier
+        outliers = outlier_detector.predict(X)
+        outlier_indices = np.where(outliers == -1)
+        return outlier_indices
+    
+    def one_class_svm_indices_of_outliers(X):
+        '''
+        Detects outliers using the one class SVM method
+    
+        Input: An array of all variables to detect outliers for
+        Output: An array with indices of detected outliers
+        '''
+        from sklearn.svm import OneClassSVM
+    
+        # Creating and fitting the detector
+        outlier_detector = OneClassSVM()
+        outlier_detector.fit(X)
+    
+        # Predicting outliers and outputting an array with 1 if it is an outlier
+        outliers = outlier_detector.predict(X)
+        outlier_indices = np.where(outliers == -1)
+        return outlier_indices
+    
     
     # Dictionaries for individual features to be packaged into a master dictionary
     iqr_outlier_indices = {}
@@ -379,15 +421,15 @@ def outlier_report(features):
     
     # Single column outlier tests
     print('Single feature outlier tests')
-    for feature in range(features.shape[1]):
+    for feature in range(dataframe.shape[1]):
         
         # Gathering feature names for use in output dictionary and results dataframe
-        feature_name = features.columns[feature]
+        feature_name = dataframe.columns[feature]
         
         # Finding outliers
-        iqr_outliers = iqr_indices_of_outliers(features.iloc[:, feature])[0]
-        z_score_outliers = z_score_indices_of_outliers(features.iloc[:, feature])[0]
-        percentile_outliers = percentile_indices_of_outliers(features.iloc[:, feature])[0]
+        iqr_outliers = iqr_indices_of_outliers(dataframe.iloc[:, feature])[0]
+        z_score_outliers = z_score_indices_of_outliers(dataframe.iloc[:, feature])[0]
+        percentile_outliers = percentile_indices_of_outliers(dataframe.iloc[:, feature])[0]
         multiple_outliers = np.intersect1d(iqr_outliers, z_score_outliers)
         
         # Adding to the empty dictionaries
@@ -410,9 +452,10 @@ def outlier_report(features):
     results = results.append(results_subtotal)
     
     # Calculating the percent of total values in each column
-    num_observations = features.shape[0]
+    num_observations = dataframe.shape[0]
     results['IQR %'] = results['IQR'] / num_observations
     results['Z Score %'] = results['Z Score'] / num_observations
+    results['Percentile %'] = results['Percentile'] / num_observations
     results['Multiple %'] = results['Multiple'] / num_observations
     
     # Printing the results dataframe as a table
@@ -420,21 +463,31 @@ def outlier_report(features):
     
     # All column outlier tests
     print('All feature outlier tests')
-    ellipses_outlier_indices = ellipses_indices_of_outliers(features)
-    print('Ellipses: {0}'.format(len(ellipses_outlier_indices[0])))
+    ellipses_outlier_indices = ellipses_indices_of_outliers(dataframe)
+    print('- Ellipses: {0}'.format(len(ellipses_outlier_indices[0])))
     
+    isolation_forest_outlier_indices = isolation_forest_indices_of_outliers(dataframe)
+    print('- Isolation Forest: {0}'.format(len(isolation_forest_outlier_indices[0])))
+
+    one_class_svm_outlier_indices = one_class_svm_indices_of_outliers(dataframe)
+    print('- One Class SVM: {0}'.format(len(one_class_svm_outlier_indices[0])))
+
     # Putting together the final dictionary for output
     all_outlier_indices = {}
-    all_outlier_indices['Ellipses'] = ellipses_outlier_indices
     all_outlier_indices['IQR'] = iqr_outlier_indices
     all_outlier_indices['Z Score'] = z_score_outlier_indices
     all_outlier_indices['Percentile'] = percentile_outlier_indices
     all_outlier_indices['Multiple'] = multiple_outlier_indices
+    all_outlier_indices['Ellipses'] = ellipses_outlier_indices
+    all_outlier_indices['Isolation Forest'] = isolation_forest_outlier_indices
+    all_outlier_indices['One Class SVM'] = one_class_svm_outlier_indices
     
     return all_outlier_indices
 
         
 outlier_report(df)['feature']['Outlier type']  # Returns array of indices for outliers
+# or
+outlier_report(df)['Multiple feature outlier type']  # Returns array of indices for outliers
    
 #################################################################################################################
 ##### Preprocessing
