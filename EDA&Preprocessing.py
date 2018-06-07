@@ -352,7 +352,7 @@ def outlier_report(dataframe, z_threshold=3, per_threshold=0.95, contamination=0
         outlier_indices = np.where((X < minval) | (X > maxval))
         return outlier_indices
     
-    def ellipses_indices_of_outliers(X):
+    def ellipses_envelope_indices_of_outliers(X):
         '''
         Detects outliers using the elliptical envelope method
     
@@ -463,8 +463,8 @@ def outlier_report(dataframe, z_threshold=3, per_threshold=0.95, contamination=0
     
     # All column outlier tests
     print('All feature outlier tests')
-    ellipses_outlier_indices = ellipses_indices_of_outliers(dataframe)
-    print('- Ellipses: {0}'.format(len(ellipses_outlier_indices[0])))
+    ellipses_envelope_outlier_indices = ellipses_envelope_indices_of_outliers(dataframe)
+    print('- Ellipses Envelope: {0}'.format(len(ellipses_envelope_outlier_indices[0])))
     
     isolation_forest_outlier_indices = isolation_forest_indices_of_outliers(dataframe)
     print('- Isolation Forest: {0}'.format(len(isolation_forest_outlier_indices[0])))
@@ -474,13 +474,13 @@ def outlier_report(dataframe, z_threshold=3, per_threshold=0.95, contamination=0
 
     # Putting together the final dictionary for output
     all_outlier_indices = {}
+    all_outlier_indices['Ellipses Envelope'] = ellipses_envelope_outlier_indices
+    all_outlier_indices['Isolation Forest'] = isolation_forest_outlier_indices
+    all_outlier_indices['One Class SVM'] = one_class_svm_outlier_indices
     all_outlier_indices['IQR'] = iqr_outlier_indices
     all_outlier_indices['Z Score'] = z_score_outlier_indices
     all_outlier_indices['Percentile'] = percentile_outlier_indices
     all_outlier_indices['Multiple'] = multiple_outlier_indices
-    all_outlier_indices['Ellipses'] = ellipses_outlier_indices
-    all_outlier_indices['Isolation Forest'] = isolation_forest_outlier_indices
-    all_outlier_indices['One Class SVM'] = one_class_svm_outlier_indices
     
     return all_outlier_indices
 
