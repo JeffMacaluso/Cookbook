@@ -168,7 +168,25 @@ def iqr_indices_of_outliers(X):
     return outlier_indices
 
 
-# Detecting outliers with the Elliptical Envelope
+# Detecting outliers with Z scores
+def z_score_indices_of_outliers(X, threshold=3):
+    '''
+    Detects outliers using the Z score method method
+    
+    Input: - X: An array of a variable to detect outliers for
+           - threshold: The number of standard deviations from the mean
+                        to be considered an outlier
+                        
+    Output: An array with indices of detected outliers
+    '''
+    X_mean = np.mean(X)
+    X_stdev = np.std(X)
+    z_scores = [(y - X_mean) / X_stdev for y in X]
+    outlier_indices = np.where(np.abs(z_scores) > threshold)
+    return outlier_indices
+
+
+# Detecting outliers with the Elliptical Envelope method
 def ellipses_indices_of_outliers(X, contamination=0.1):
     '''
     Detects outliers using the elliptical envelope method
@@ -204,21 +222,39 @@ def ellipses_indices_of_outliers(X, contamination=0.1):
     return outlier_indices
 
 
-# Detecting outliers with Z scores
-def z_score_indices_of_outliers(X, threshold=3):
+# Detecting outliers with the Isolation Forest method
+def isolator_forest_indices_of_outliers(X, contamination=0.1, n_estimators=100):
     '''
-    Detects outliers using the Z score method method
+    Detects outliers using the isolation forest method
     
-    Input: - X: An array of a variable to detect outliers for
-           - threshold: The number of standard deviations from the mean
-                        to be considered an outlier
-                        
+    Input: An array of all variables to detect outliers for
     Output: An array with indices of detected outliers
     '''
-    X_mean = np.mean(X)
-    X_stdev = np.std(X)
-    z_scores = [(y - X_mean) / X_stdev for y in X]
-    outlier_indices = np.where(np.abs(z_scores) > threshold)
+    from sklearn.ensemble import IsolationForest
+    
+    # Copying to prevent changes to the input array
+    X = X.copy()
+    
+    # Dropping categorical columns
+    non_categorical = []
+    for feature in range(X.shape[1]):
+        num_unique_values = len(np.unique(X[:, feature]))
+        if num_unique_values > 30:
+            non_categorical.append(feature)
+    X = X[:, non_categorical]  # Subsetting to columns without categorical indexes
+
+    # Testing if there are an adequate number of features
+    if X.shape[0] < X.shape[1] ** 2.:
+        print('Will not perform well. Reduce the dimensionality and try again.')
+        return
+    
+    # Creating and fitting the detector
+    outlier_detector = IsolationForest(contamination=contamination, n_estimators=n_estimators)
+    outlier_detector.fit(X)
+    
+    # Predicting outliers and outputting an array with 1 if it is an outlier
+    outliers = outlier_detector.predict(X)
+    outlier_indices = np.where(outliers == -1)
     return outlier_indices
 
 
