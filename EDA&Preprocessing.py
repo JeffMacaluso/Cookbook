@@ -498,7 +498,7 @@ df_encoded = pd.get_dummies(df, columns=['a', 'b', 'c'], drop_first=True)
 # Converting a categorical column to numbers
 df['TargetVariable'].astype('category').cat.codes
 
-# Normalizing
+# Scaling from 0 to 1
 from sklearn import preprocessing
 min_max_scaler = preprocessing.MinMaxScaler()
 X_norm = min_max_scaler.fit_transform(X)  # Normalizing across columns
