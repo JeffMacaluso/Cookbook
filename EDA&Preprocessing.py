@@ -430,7 +430,7 @@ def outlier_report(dataframe, z_threshold=3, per_threshold=0.95, contamination=0
         iqr_outliers = iqr_indices_of_outliers(dataframe.iloc[:, feature])[0]
         z_score_outliers = z_score_indices_of_outliers(dataframe.iloc[:, feature])[0]
         percentile_outliers = percentile_indices_of_outliers(dataframe.iloc[:, feature])[0]
-        multiple_outliers = np.intersect1d(iqr_outliers, z_score_outliers)
+        multiple_outliers = np.intersect1d(iqr_outliers, z_score_outliers)  # TODO: Fix this
         
         # Adding to the empty dictionaries
         iqr_outlier_indices[feature_name] = iqr_outliers
