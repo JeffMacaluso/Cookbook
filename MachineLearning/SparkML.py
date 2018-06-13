@@ -247,3 +247,52 @@ print("objectiveHistory: %s" % str(trainingSummary.objectiveHistory))
 trainingSummary.residuals.show()
 print("RMSE: %f" % trainingSummary.rootMeanSquaredError)
 print("r2: %f" % trainingSummary.r2)
+
+
+#################################################################################################################
+##### Model Training
+# Prediction Intervals with Quantile Regression in MML/LightGBM
+def prediction_with_intervals(train, test, confidence_level=0.95):
+    '''
+    Trains LightGBM models and creates predictions on the data
+  
+    Input:
+      - train: The training set with the label and vectorized features
+      - test: The testing set with the label and vectorized features
+      - confidence_level: The percent confidence level for the quantile regression
+    
+    Output: 
+      - A Spark dataframe with the point estimates and upper/lower bounds
+  
+    TODO: Add more inputs for hyperparameter tuning
+    '''
+    from mmlspark import LightGBMRegressor
+  
+    # Calculating the upper/lower buffer for the quantile regressions
+    alpha_buffer = (1 - confidence_level) / 2
+  
+    # Training all three models
+    # Lower bound of 95% confidence interval
+    model_lower_bound = LightGBMRegressor(application='quantile',
+                                          alpha=confidence_level - alpha_buffer,
+                                          learningRate=0.3).fit(train)
+
+    # Upper bound of 95% confidence interval
+    model_upper_bound = LightGBMRegressor(application='quantile',
+                                          alpha=confidence_level + alpha_buffer,
+                                          learningRate=0.3).fit(train)
+
+    # Point prediction
+    model = LightGBMRegressor(application='regression',
+                             learningRate=0.3).fit(train)
+    
+    # Scoring on the testing set and assembling the results
+    point_predictions = model.transform(test)
+    upper_predictions = model_upper_bound.transform(test).withColumnRenamed('prediction', 'UpperBound')
+    lower_predictions = model_lower_bound.transform(test).withColumnRenamed('prediction', 'LowerBound')
+    
+    # Assembling the results
+    scored_data = (point_predictions.join(upper_predictions, ['label', 'features'])
+                                    .join(lower_predictions, ['label', 'features']))
+    
+    return scored_data
