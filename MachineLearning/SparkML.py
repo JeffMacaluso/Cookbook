@@ -122,6 +122,9 @@ def sliding_window_evaluation(dataframe, feature_columns, num_windows=5, test_si
     output = assembler.transform(dataframe)
     vectorizedDF = output.select('features', col(labelColumn).alias('label'), 'window_num')
     
+    # Gathering the total RMSE from all windows
+    total_RMSE = []
+    
    # Looping over windows, splitting into train/test sets, and training and evaluating a model on each set
     for window in range(1, num_windows+1):
         
@@ -142,6 +145,7 @@ def sliding_window_evaluation(dataframe, feature_columns, num_windows=5, test_si
         
         # Creating a plot of the predictions and actuals to see if there is a significant lag
         predictDF = model.transform(testWindow)  # Generating predictions
+        total_RMSE.append(testRMSE)
         fig, ax = plt.subplots()
         ax.plot(predictDF.select('label').collect(), label='Label')
         ax.plot(predictDF.select('prediction').collect(), label='Prediction')
@@ -154,8 +158,10 @@ def sliding_window_evaluation(dataframe, feature_columns, num_windows=5, test_si
         print('Testing Size:', testWindow.count())
         print("r2: %f" % modelSummary.r2)
         print("Training RMSE: %f" % modelSummary.rootMeanSquaredError)
-        display(fig)  # Plot of actuals vs predictions
+        plt.show()  # Plot of actuals vs predictions
         print()
+        
+    print('Average RMSE for {0} windows: {1}'.format(num_windows, np.mean(total_RMSE)))
         
         
 feature_columns = ['previous_hour_price', 'previous_hour_high_low_range', 'previous_hour_volume']
