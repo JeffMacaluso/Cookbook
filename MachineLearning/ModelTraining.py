@@ -267,8 +267,8 @@ def ensemble_prediction_intervals(model, X, X_train=None, y_train=None, percenti
 #################################################################################################################
 ##### Ensemble Predictions
   
-# Ensemble predictions - xgboost
-def ensemble_xgboost_predictions(train_features, train_labels, prediction_features, num_models=3):
+# Blending predictions - xgboost
+def blend_xgboost_predictions(train_features, train_labels, prediction_features, num_models=3):
     '''
     Trains the number of specified xgboost models and averages the predictions
     
@@ -337,8 +337,8 @@ def ensemble_xgboost_predictions(train_features, train_labels, prediction_featur
     
     return predictions
   
-# Ensemble predictions - Scikit-Learn
-def ensemble_sklearn_predictions(model, train_features, train_labels, prediction_features, num_models=3):
+# Blending predictions - Scikit-Learn
+def blend_sklearn_predictions(model, train_features, train_labels, prediction_features, num_models=3):
     '''
     Trains the number of specified scikit-learn models and averages the predictions
     
