@@ -7,7 +7,7 @@ Personal reference scripts for commonly used code
         - [Hyperparameter Tuning](https://github.com/JeffMacaluso/Cookbook/blob/master/MachineLearning/ModelTraining.py#L37)
         - [Optimal Class Probability Cutoffs](https://github.com/JeffMacaluso/Cookbook/blob/master/MachineLearning/ModelTraining.py#L97)
         - [Prediction Intervals](https://github.com/JeffMacaluso/Cookbook/blob/master/MachineLearning/ModelTraining.py#L175)
-        - [Ensembling Model Predictions](https://github.com/JeffMacaluso/Cookbook/blob/master/MachineLearning/ModelTraining.py#L267)
+        - [Blending Model Predictions](https://github.com/JeffMacaluso/Cookbook/blob/master/MachineLearning/ModelTraining.py#L267)
     - **[Evaluation Plots](https://github.com/JeffMacaluso/Cookbook/blob/master/MachineLearning/EvaluationPlots.py):** Diagnostic plots for evaluating models
         - [Residuals](https://github.com/JeffMacaluso/Cookbook/blob/master/MachineLearning/EvaluationPlots.py#L28)
         - [Learning Curve](https://github.com/JeffMacaluso/Cookbook/blob/master/MachineLearning/EvaluationPlots.py#L61)
