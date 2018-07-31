@@ -1,3 +1,4 @@
+import os
 import sys
 import time
 import re
@@ -5,6 +6,7 @@ import nltk
 
 print(time.strftime('%Y/%m/%d %H:%M'))
 print('OS: ', sys.platform)
+print('CPU Cores:', os.cpu_count())
 print('Python: ', sys.version)
 print('NLTK: ', nltk.__version__)
 
