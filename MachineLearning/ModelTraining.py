@@ -32,7 +32,7 @@ from sklearn.model_selection import train_test_split
 X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.30, random_state=46)
 
 # K-fold cross validation
-from sklearn.model_selection import KFold
+from sklearn.model_selection import KFold, cross_val_score
 k_fold = KFold(n_splits=10, shuffle=True, random_state=46)
 cross_val_score(model, X, y, cv=k_fold, n_jobs=-1)
 
