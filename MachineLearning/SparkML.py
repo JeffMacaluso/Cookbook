@@ -79,6 +79,7 @@ print('The model had a RMSE on the test set of {0}'.format(testRMSE))
 
 
 # K-folds
+from pyspark.ml.tuning import CrossValidator
 from pyspark.ml.evaluation import RegressionEvaluator
 
 regEval = RegressionEvaluator().setLabelCol('label')
