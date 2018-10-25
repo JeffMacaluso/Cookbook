@@ -36,9 +36,9 @@ profile.to_file(outputfile='/tmp/myoutputfile.html')  # Saving report as a file
 
 # Printing the percentage of missing values per column
 def percent_missing(dataframe):
-    """
+    '''
     Prints the percentage of missing values for each column in a dataframe
-    """
+    '''
     # Summing the number of missing values per column and then dividing by the total
     sumMissing = dataframe.isnull().values.sum(axis=0)
     pctMissing = sumMissing / dataframe.shape[0]
@@ -65,13 +65,13 @@ df.fillna(method='ffill', inplace=True)  #'backfill' for interpolating the other
 
 # Filling missing values with a predictive model
 def predict_missing_values(data, column, correlationThresh=0.5, cross_validations=3):
-    """
+    '''
     Fills missing values using a random forest model on highly correlated columns
     Returns a series of the column with missing values filled
     
     To-do: - Add the option to specify columns to use for predictions
            - Look into other options for handling missing predictors
-    """
+    '''
     from sklearn.model_selection import cross_val_score
     from sklearn import ensemble
     
