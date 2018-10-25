@@ -137,3 +137,27 @@ def feature_importance(model):
     plt.xlabel('Relative Importance')
     plt.title('Variable Importance')
     plt.show()
+
+
+# Visualize the decision tree
+def plot_decision_tree(model, feature_names=None):
+    '''
+    Plots the decision tree from a scikit-learn 
+    Requires graphviz
+
+    TODO: Finish sprucing up docstring
+    '''
+    from sklearn.externals.six import StringIO  
+    from IPython.display import Image  
+    from sklearn.tree import export_graphviz
+    import pydotplus
+
+    dot_data = StringIO()
+    
+    export_graphviz(model, out_file=dot_data,  
+                    filled=True, rounded=True,
+                    special_characters=True,
+                    feature_names=feature_names)
+
+    graph = pydotplus.graph_from_dot_data(dot_data.getvalue())  
+    display(Image(graph.create_png()))
