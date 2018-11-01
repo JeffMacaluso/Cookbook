@@ -139,13 +139,20 @@ def feature_importance(model):
     plt.show()
 
 
-# Visualize the decision tree
+# Visualizing the decision tree
 def plot_decision_tree(model, feature_names=None):
     '''
-    Plots the decision tree from a scikit-learn 
-    Requires graphviz
-
-    TODO: Finish sprucing up docstring
+    Plots the decision tree from a scikit-learn DecisionTreeClassifier or DecisionTreeRegressor
+    Requires graphviz: https://www.graphviz.org
+    
+    Notes on decision tree visualization:
+        - The Gini score is the level of "impurity" of the node. 
+            - Scores closer to 0.5 are more mixed, whereas scores closer to 0 are more homogenous
+        - For classification, the colors correspond to different classes
+            - The shades are determined by the Gini score. Nodes closer to 0.5 will be lighter.
+        - Values contain the number of samples in each category
+    
+    TODO: Add notes on decision tree visualization for regression
     '''
     from sklearn.externals.six import StringIO  
     from IPython.display import Image  
@@ -161,3 +168,4 @@ def plot_decision_tree(model, feature_names=None):
 
     graph = pydotplus.graph_from_dot_data(dot_data.getvalue())  
     display(Image(graph.create_png()))
+    
