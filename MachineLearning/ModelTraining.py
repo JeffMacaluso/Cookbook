@@ -390,3 +390,70 @@ def blend_sklearn_predictions(model, train_features, train_labels, prediction_fe
     predictions = np.asarray(predictions).mean(axis=0)
     
     return predictions
+
+
+#################################################################################################################
+##### Feature Selection
+
+def stepwise_logistic_regression(X, y, k_fold=True):
+    '''
+    TODO: 
+        - Write docstring
+        - Fix IndexError for k_fold
+    '''
+    # Enforcing numpy arrays to use X[:, feature_index] instead of X.iloc[:, feature_index] for dataframes
+    X_feature_selection = np.array(X)
+    X_train_feature_selection, X_test_feature_selection, y_train, y_test = train_test_split(
+        X_feature_selection, y, test_size=0.30, random_state=46)
+
+    # Creating a list of the number of features to try in the stepwise selection
+    num_features_list = np.arange(X.shape[1], 2, -1)
+
+    # List of accuracy to be filled within the for loop
+    accuracies = []
+
+    # Testing stepwise feature selection with a different number of features
+    for num_features in num_features_list:
+
+        # Printing the progress at different intervals to not spam the output
+        if num_features % 5 == 0:
+            print('Testing with {0} features'.format(num_features))
+
+        # Using stepwise feature selection to determine which features to select
+        estimator = LogisticRegression()
+        selector = feature_selection.RFE(estimator, num_features, step=1)
+        selector.fit(X_train_feature_selection, y_train)
+        feature_indexes = list(selector.get_support(indices=True))
+        
+        # Training a final model with the specific features selected and gathering the accuracy
+        model = LogisticRegression()
+        
+        # Evaluating with either k-folds cross validation
+        if k_fold == True:
+            # Constructing new X with the updated features
+            X_feature_selection = X_feature_selection[:, feature_indexes]
+            k_fold = KFold(n_splits=5, shuffle=True, random_state=46)
+            mean_accuracy = cross_val_score(model, X_feature_selection, y, cv=5, n_jobs=-1).mean()
+            accuracies.append(mean_accuracy)
+            
+        # Evaluating with the holdout method
+        else:
+            # Constructing new X_train/X_test with the updated features
+            X_train_feature_selection = X_train_feature_selection[:, feature_indexes]
+            X_test_feature_selection = X_test_feature_selection[:, feature_indexes]
+            model.fit(X_train_feature_selection, y_train)
+            accuracy = model.score(X_test_feature_selection, y_test)
+            accuracies.append(accuracy)
+
+    # Putting the results into a data frame and creating a plot of the accuracy by number of features
+    feature_selection_results = pd.DataFrame(
+        {'Accuracy': accuracies, 'NumFeatures': num_features_list})
+    plt.plot(feature_selection_results['NumFeatures'],
+             feature_selection_results['Accuracy'])
+    plt.title('Accuracy by Number of Features')
+    plt.xlabel('Number of Features')
+    plt.ylabel('Accuracy')
+    plt.show()
+
+    # Viewing the output as a sorted data frame
+    return feature_selection_results.sort_values('Accuracy', ascending=False)
