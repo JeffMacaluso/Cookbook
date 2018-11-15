@@ -43,10 +43,14 @@ def percent_missing(dataframe):
     sumMissing = dataframe.isnull().values.sum(axis=0)
     pctMissing = sumMissing / dataframe.shape[0]
     
-    # Looping through and printing out each columns missing value percentage
-    print('Percent Missing Values:', '\n')
-    for idx, col in enumerate(dataframe.columns):
-        print('{0}: {1:.2f}%'.format(col, pctMissing[idx] * 100))
+    if sumMissing.sum() == 0:
+        print('No missing values')
+    else:
+        # Looping through and printing out each columns missing value percentage
+        print('Percent Missing Values:', '\n')
+        for idx, col in enumerate(dataframe.columns):
+            if sumMissing[idx] > 0:
+                print('{0}: {1:.2f}%'.format(col, pctMissing[idx] * 100))
         
 
 # Plotting missing values
