@@ -551,3 +551,30 @@ def fit_PCA(X, num_components=0.99):
     principal_components = pca.transform(X_norm)
     return principal_components
  
+    
+# Oversampling
+def oversample_binary_label(dataframe, label_column):
+    '''
+    TODO: 
+        - Write docstring
+        - Make this work with multiple classes
+    '''
+    
+    # Counting the classes
+    class_0_count, class_1_count = dataframe[label_column].value_counts()
+    
+    # Creating two dataframes for each class
+    dataframe_class_0 = dataframe[dataframe[label_column] == dataframe[label_column].unique()[0]]
+    dataframe_class_1 = dataframe[dataframe[label_column] == dataframe[label_column].unique()[1]]
+    
+    # Oversampling
+    # TODO: Rename this
+    # TODO: Make this dynamically work w/ the smaller class
+    dataframe_class_1_oversampled = dataframe_class_1.sample(class_0_count, replace=True)
+    dataframe_oversampled = pd.concat([dataframe_class_0, dataframe_class_1_oversampled], axis=0)
+    
+    # Printing results
+    print('Oversampled number of observations in each class:')
+    print(dataframe_oversampled[label_column].value_counts())
+    
+    return dataframe_oversampled
