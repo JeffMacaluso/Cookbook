@@ -122,7 +122,7 @@ plot_validation_curve(model, X, y, param_name, param_range)
 
 
 # Ensemble Model's Feature Importance
-def feature_importance(model):
+def plot_ensemble_feature_importance(model):
     '''
     Plots the feature importance for an ensemble model
     '''
