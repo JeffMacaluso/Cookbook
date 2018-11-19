@@ -555,9 +555,15 @@ def fit_PCA(X, num_components=0.99):
 # Oversampling
 def oversample_binary_label(dataframe, label_column):
     '''
-    TODO: 
-        - Write docstring
-        - Make this work with multiple classes
+    Oversamples a dataframe with a binary label to have an equal proportion in classes. Dynamically
+    determines the label with the lower proportion.
+    
+    Inputs: 
+        - dataframe: A dataframe containing the label
+        - label_column: A string of the column containing the label
+    Output: A dataframe with the lower proportion label oversampled
+    
+    TODO: Update this to oversample the training set and return both the training and testing sets
     '''
     
     # Counting the classes
@@ -567,13 +573,22 @@ def oversample_binary_label(dataframe, label_column):
     dataframe_class_0 = dataframe[dataframe[label_column] == dataframe[label_column].unique()[0]]
     dataframe_class_1 = dataframe[dataframe[label_column] == dataframe[label_column].unique()[1]]
     
+    # Determining the smaller class
+    smaller_label = dataframe[label_column].value_counts().idxmin()
+    
     # Oversampling
-    # TODO: Rename this
-    # TODO: Make this dynamically work w/ the smaller class
-    dataframe_class_1_oversampled = dataframe_class_1.sample(class_0_count, replace=True)
-    dataframe_oversampled = pd.concat([dataframe_class_0, dataframe_class_1_oversampled], axis=0)
+    if smaller_label == 0:
+        dataframe_class_0_oversampled = dataframe_class_0.sample(class_1_count, replace=True)
+        dataframe_oversampled = pd.concat([dataframe_class_1, dataframe_class_0_oversampled], axis=0)
+    else:
+        dataframe_class_1_oversampled = dataframe_class_1.sample(class_0_count, replace=True)
+        dataframe_oversampled = pd.concat([dataframe_class_0, dataframe_class_1_oversampled], axis=0)
     
     # Printing results
+    print('Initial number of observations in each class:')
+    print(dataframe[label_column].value_counts())
+    print()
+    
     print('Oversampled number of observations in each class:')
     print(dataframe_oversampled[label_column].value_counts())
     
