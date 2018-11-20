@@ -595,15 +595,29 @@ def oversample_binary_label(dataframe, label_column):
     return dataframe_oversampled
 
 # Oversampling with SMOTE
-def oversample_smote(training_features, training_labels):
+def oversample_smote(training_features, training_labels, is_dataframe=True):
     '''
     Convenience function for oversampling with SMOTE. This generates synthetic samples via interpolation.
+    Automatically encodes categorical columns if a dataframe is provided with categorical columns properly marked.
     
-    Input: The training features and labels
+    Input: The training features and labels. is_dataframe is for checking for categorical columns.
     Output: The oversampled training features and labels
     '''
     from imblearn import over_sampling
-    smote = over_sampling.SMOTE(random_state=46)
+    
+    if is_dataframe == True:
+        # Testing if there are any categorical columns
+        # Note: These must have the "category" datatype
+        categorical_column_list = training_features.select_dtypes(exclude=['number', 'bool_', 'object_']).columns
+        if test.shape[0] > 0:
+            categorical_column_list = list(categorical_column_list)
+            categorical_column_indexes = training_features.columns.get_indexer(categorical_column_list)
+            smote = over_sampling.SMOTENC(categorical_features=categorical_column_indexes, random_state=46, n_jobs=-1)
+        else:
+            smote = over_sampling.SMOTE(random_state=46, n_jobs=-1)
+    else:        
+        smote = over_sampling.SMOTE(random_state=46, n_jobs=-1)
+    
     training_features_oversampled, training_labels_oversampled = smote.fit_sample(training_features, training_labels)
     
     print('Previous training size:', len(training_labels))
