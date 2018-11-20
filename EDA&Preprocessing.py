@@ -615,17 +615,20 @@ def oversample_smote(training_features, training_labels, is_dataframe=True):
             smote = over_sampling.SMOTENC(categorical_features=categorical_variable_indexes, random_state=46, n_jobs=-1)
         else:
             smote = over_sampling.SMOTE(random_state=46, n_jobs=-1)
-        
-        # Rounding discrete variables for appropriate cutoffs
-        # This is becuase SMOTE NC only deals with binary categorical variables, not discrete variables
-        discrete_variable_list = training_features.select_dtypes(include=['int', 'int32', 'int64']).columns
-        if discrete_variable_list.shape[0] > 0:
-            training_features.loc[:, discrete_variable_list] = training_features.loc[:, discrete_variable_list].apply(lambda x: round(x))
-        
     else:        
         smote = over_sampling.SMOTE(random_state=46, n_jobs=-1)
     
+    # Performing oversampling
     training_features_oversampled, training_labels_oversampled = smote.fit_sample(training_features, training_labels)
+    
+    # Rounding discrete variables for appropriate cutoffs
+    # This is becuase SMOTE NC only deals with binary categorical variables, not discrete variables
+    if is_dataframe == True:
+        discrete_variable_list = training_features.select_dtypes(include=['int', 'int32', 'int64']).columns
+        if discrete_variable_list.shape[0] > 0:
+            discrete_variable_indexes = training_features.columns.get_indexer(discrete_variable_list)
+            for discrete_variable_index in discrete_variable_indexes:
+                training_features_oversampled[:, discrete_variable_index] = np.round(training_features_oversampled[:, discrete_variable_index].astype(float)).astype(int)
     
     print('Previous training size:', len(training_labels))
     print('Oversampled training size', len(training_labels_oversampled), '\n')
