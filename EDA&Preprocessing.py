@@ -593,3 +593,24 @@ def oversample_binary_label(dataframe, label_column):
     print(dataframe_oversampled[label_column].value_counts())
     
     return dataframe_oversampled
+
+# Oversampling with SMOTE
+def oversample_smote(training_features, training_labels):
+    '''
+    Convenience function for oversampling with SMOTE. This generates synthetic samples via interpolation.
+    
+    Input: The training features and labels
+    Output: The oversampled training features and labels
+    '''
+    from imblearn import over_sampling
+    smote = over_sampling.SMOTE(random_state=46)
+    training_features_oversampled, training_labels_oversampled = smote.fit_sample(training_features, training_labels)
+    
+    print('Previous training size:', len(training_labels))
+    print('Oversampled training size', len(training_labels_oversampled), '\n')
+    print('Previous label mean:', training_labels.astype(int).mean())
+    print('Oversampled label mean:', training_labels_oversampled.mean())
+    
+    return training_features_oversampled, training_labels_oversampled
+
+X_train_oversampled, y_train_oversampled = oversample_smote(X_train, y_train)
