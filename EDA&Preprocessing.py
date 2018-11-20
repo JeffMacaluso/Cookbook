@@ -608,13 +608,20 @@ def oversample_smote(training_features, training_labels, is_dataframe=True):
     if is_dataframe == True:
         # Testing if there are any categorical columns
         # Note: These must have the "category" datatype
-        categorical_column_list = training_features.select_dtypes(exclude=['number', 'bool_', 'object_']).columns
-        if test.shape[0] > 0:
-            categorical_column_list = list(categorical_column_list)
-            categorical_column_indexes = training_features.columns.get_indexer(categorical_column_list)
-            smote = over_sampling.SMOTENC(categorical_features=categorical_column_indexes, random_state=46, n_jobs=-1)
+        categorical_variable_list = training_features.select_dtypes(exclude=['number', 'bool_', 'object_']).columns
+        if categorical_variable_list.shape[0] > 0:
+            categorical_variable_list = list(categorical_variable_list)
+            categorical_variable_indexes = training_features.columns.get_indexer(categorical_variable_list)
+            smote = over_sampling.SMOTENC(categorical_features=categorical_variable_indexes, random_state=46, n_jobs=-1)
         else:
             smote = over_sampling.SMOTE(random_state=46, n_jobs=-1)
+        
+        # Rounding discrete variables for appropriate cutoffs
+        # This is becuase SMOTE NC only deals with binary categorical variables, not discrete variables
+        discrete_variable_list = training_features.select_dtypes(include=['int', 'int32', 'int64']).columns
+        if discrete_variable_list.shape[0] > 0:
+            training_features.loc[:, discrete_variable_list] = training_features.loc[:, discrete_variable_list].apply(lambda x: round(x))
+        
     else:        
         smote = over_sampling.SMOTE(random_state=46, n_jobs=-1)
     
