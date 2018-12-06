@@ -22,10 +22,10 @@ Personal reference scripts for commonly used code
         - [Hyperparameter Tuning](https://github.com/JeffMacaluso/Cookbook/blob/master/MachineLearning/SparkML.py#L154)
         - [Model Diagnostics](https://github.com/JeffMacaluso/Cookbook/blob/master/MachineLearning/SparkML.py#L219)
 - **[Exploratory Data Analysis & Pre-Processing](https://github.com/JeffMacaluso/Cookbook/blob/master/EDA%26Preprocessing.py):** Preparing data for machine learning tasks
-    - [EDA Report](https://github.com/JeffMacaluso/Cookbook/blob/master/EDA%26Preprocessing.py#L23)
-    - [Missing Values](https://github.com/JeffMacaluso/Cookbook/blob/master/EDA%26Preprocessing.py#L32)
-    - [Outliers](https://github.com/JeffMacaluso/Cookbook/blob/master/EDA&Preprocessing.py#L148)
-    - [Pre-processing](https://github.com/JeffMacaluso/Cookbook/blob/master/EDA&Preprocessing.py#L271)
+    - [EDA Report](https://github.com/JeffMacaluso/Cookbook/blob/master/EDA%26Preprocessing.py#L26)
+    - [Missing Values](https://github.com/JeffMacaluso/Cookbook/blob/master/EDA%26Preprocessing.py#L35)
+    - [Outliers](https://github.com/JeffMacaluso/Cookbook/blob/master/EDA&Preprocessing.py#L155)
+    - [Pre-processing](https://github.com/JeffMacaluso/Cookbook/blob/master/EDA&Preprocessing.py#L499)
 - **[Natural Language Processing](https://github.com/JeffMacaluso/Cookbook/blob/master/NLP.py):** NLTK natural language processing tasks
     - [Tokenizing](https://github.com/JeffMacaluso/Cookbook/blob/master/NLP.py#L11)
     - [Lemmatizing (similar to Stemming)](https://github.com/JeffMacaluso/Cookbook/blob/master/NLP.py#L25)
