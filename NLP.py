@@ -55,3 +55,36 @@ tfidf_df = tfidf_df[tfidf_df.columns[tfidf_df.sum() > 2.5]]
 
 # Removing digits
 tfidf_df = tfidf_df.filter(regex=r'^((?!\d).)*$')
+
+## Topic modeling
+def topic_model_lda(processed_corpus, num_topics=5, num_words=4):
+    '''
+    Uses Latent Dirichlect Allocation for topic modeling
+    Borrowed from https://towardsdatascience.com/topic-modelling-in-python-with-nltk-and-gensim-4ef03213cd21
+    
+    Inputs: 
+        - Processed_corpus: The corpus of text that has already been tokenized/stemmed/etc.
+        - num_topics: The number of topics to discover in the text
+        - num_words: The number of words per topic to print in the output
+    
+    Output: A pretty printed list of words in each topic and the probability associated with htem
+    
+    TODO: Print interpretation of the numbers
+    '''
+    import gensim
+    
+    # Additional processing before modeling
+    dictionary = corpora.Dictionary(processed_corpus)
+    corpus = [dictionary.doc2bow(text) for text in processed_corpus]
+    
+    # Performing LDA
+    lda_model = gensim.models.ldamodel.LdaModel(corpus, num_topics=num_topics, id2word=dictionary, passes=15)
+    topics = lda_model.print_topics(num_words=num_words)
+    
+    # Reporting the topics
+    for topic in topics:
+        print('Topic {0}:'.format(topic[0]))  # Printing the topic number
+        topic_words = topic[-1].replace('"', '').replace(' ', '')  # Removing white space and quotes
+        topic_words = [word.split('*') for word in topic_words.split('+')]  # Splitting into one item for the word and one for the probability
+        [print(' {0}: {1}'.format(x[1], x[0])) for x in topic_words]  # Printing the results as word: probability
+        print()  # New line
