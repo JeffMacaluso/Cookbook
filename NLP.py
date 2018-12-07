@@ -68,7 +68,9 @@ def topic_model_lda(processed_corpus, num_topics=5, num_words=4):
         - num_topics: The number of topics to discover in the text
         - num_words: The number of words per topic to print in the output
     
-    Output: A pretty printed list of words in each topic and the probability associated with htem
+    Outputs: 
+        - A pretty printed list of words in each topic and the probability associated with them
+        - A dataframe with the topics assigned to each sample
     
     TODO: Print interpretation of the numbers
     '''
@@ -82,10 +84,22 @@ def topic_model_lda(processed_corpus, num_topics=5, num_words=4):
     lda_model = gensim.models.ldamodel.LdaModel(corpus, num_topics=num_topics, id2word=dictionary, passes=15)
     topics = lda_model.print_topics(num_words=num_words)
     
+    ## Assigning the topics to individual comments
+    results = pd.DataFrame(processed_corpus)  # Putting the series into a dataframe
+    
+    # Calculating the probability of each topic and assigning the topic with the highest probability
+    results['Topic'] = processed_corpus.apply(lambda sentence: np.matrix(lda_model[dictionary.doc2bow(sentence)])[:, 1].argmax())
+    
+    # Calculating the total number of phrases in each topic
+    number_phrases_per_topic = results['Topic'].value_counts()
+    
     # Reporting the topics
     for topic in topics:
-        print('Topic {0}:'.format(topic[0]))  # Printing the topic number
+        print('Topic {0} ({1} samples):'.format(topic[0], number_phrases_per_topic.loc[topic[0]]))  # Printing the topic number
         topic_words = topic[-1].replace('"', '').replace(' ', '')  # Removing white space and quotes
         topic_words = [word.split('*') for word in topic_words.split('+')]  # Splitting into one item for the word and one for the probability
         [print(' {0}: {1}'.format(x[1], x[0])) for x in topic_words]  # Printing the results as word: probability
         print()  # New line
+    
+    return results
+
