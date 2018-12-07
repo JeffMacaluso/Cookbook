@@ -56,7 +56,8 @@ tfidf_df = tfidf_df[tfidf_df.columns[tfidf_df.sum() > 2.5]]
 # Removing digits
 tfidf_df = tfidf_df.filter(regex=r'^((?!\d).)*$')
 
-## Topic modeling
+
+### Topic modeling
 def topic_model_lda(processed_corpus, num_topics=5, num_words=4):
     '''
     Uses Latent Dirichlect Allocation for topic modeling
