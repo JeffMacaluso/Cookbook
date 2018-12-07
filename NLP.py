@@ -12,8 +12,7 @@ print('NLTK: ', nltk.__version__)
 
 ### Tokenizing
 tokenizer = nltk.tokenize.RegexpTokenizer(r'\w+')  # By blank space
-corpus = corpus.apply(tokenizer.tokenize)  # If in a dataframe
-
+df = df.assign(tokenized_corpus=df['corpus'].map(tokenizer.tokenize))  # If the corpus is a column in a dataframe
 
 ### Removing stop words
 filtered_words = []
