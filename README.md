@@ -30,4 +30,5 @@ Personal reference scripts for commonly used code
     - [Tokenizing](https://github.com/JeffMacaluso/Cookbook/blob/master/NLP.py#L11)
     - [Lemmatizing (similar to Stemming)](https://github.com/JeffMacaluso/Cookbook/blob/master/NLP.py#L25)
     - [TF-IDF](https://github.com/JeffMacaluso/Cookbook/blob/master/NLP.py#L43)
+    - [Topic Modeling](https://github.com/JeffMacaluso/Cookbook/blob/d3c00bfdb8daa9685babaf698292e450d72101f0/NLP.py#L60)
 - **[Deep Learning (CNN)](https://nbviewer.jupyter.org/github/JeffMacaluso/Cookbook/blob/master/DeepLearning-CNN.ipynb):** Convolutional neural networks in Keras, CNTK, PyTorch, and TensorFlow
