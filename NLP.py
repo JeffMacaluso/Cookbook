@@ -77,7 +77,7 @@ def topic_model_lda(processed_corpus, num_topics=5, num_words=4):
     import gensim
     
     # Additional processing before modeling
-    dictionary = corpora.Dictionary(processed_corpus)
+    dictionary = gensim.corpora.Dictionary(processed_corpus)
     corpus = [dictionary.doc2bow(text) for text in processed_corpus]
     
     # Performing LDA
