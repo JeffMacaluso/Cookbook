@@ -15,6 +15,7 @@ Personal reference scripts for commonly used code
         - [Validation Curve](https://github.com/JeffMacaluso/Cookbook/blob/master/MachineLearning/EvaluationPlots.py#L91)  
         - [Ensemble Model's Feature Importance](https://github.com/JeffMacaluso/Cookbook/blob/master/MachineLearning/EvaluationPlots.py#L124)
         - [Decision Tree Visualization](https://github.com/JeffMacaluso/Cookbook/blob/master/MachineLearning/EvaluationPlots.py#L142)
+        - [Feature Importance with SHAP (SHapely Additive exPlanations)](https://github.com/JeffMacaluso/Cookbook/blob/abbe72115e7732be2b0bccfb3208bcd56b19721d/MachineLearning/EvaluationPlots.py#L173)
     - **[Miscellaneous](https://github.com/JeffMacaluso/Cookbook/blob/master/MachineLearning/Miscellaneous.py):** Relevant code that doesn't belong in the other sections
         - [Assumption Testing](https://github.com/JeffMacaluso/Cookbook/blob/master/MachineLearning/Miscellaneous.py#L27)
         - [Initial Model Performance Testing](https://github.com/JeffMacaluso/Cookbook/blob/master/MachineLearning/Miscellaneous.py#L245)
