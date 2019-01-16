@@ -169,3 +169,29 @@ def plot_decision_tree(model, feature_names=None):
     graph = pydotplus.graph_from_dot_data(dot_data.getvalue())  
     display(Image(graph.create_png()))
     
+    
+# Visualizing feature importance with SHAP (SHapely Additive exPlanations)
+def explain_features_shap(model, features, max_features_to_show=15):
+    '''
+    TODO: Write explanation
+    '''
+    import shap
+    
+    # Explaining the model's predictions using SHAP values
+    explainer = shap.TreeExplainer(model)
+    shap_values = explainer.shap_values(features)
+    
+    # Summarizing the effect of all features
+    print('Overall Feature Importance')
+    shap.summary_plot(shap_values, features, plot_type="bar")  # Bar plot of feature importance
+    
+    print('-----------------------------------------------------------------')
+    print('Detailed Feature Importance')
+    shap.summary_plot(shap_values, features)  # Structured scatter plot
+    
+    # Showing the effect of each feature across the whole dataset if there are not too many features
+    if features.shape[1] <= max_features_to_show:
+        print('-----------------------------------------------------------------')
+        print('SHAP values for individual features')
+        for name in features.columns:
+            shap.dependence_plot(name, shap_values, features, display_features=features)
