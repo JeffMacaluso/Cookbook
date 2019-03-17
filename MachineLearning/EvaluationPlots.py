@@ -122,7 +122,7 @@ plot_validation_curve(model, X, y, param_name, param_range)
 
 
 # Ensemble Model's Feature Importance
-def plot_ensemble_feature_importance(model):
+def plot_ensemble_feature_importance(model, features):
     '''
     Plots the feature importance for an ensemble model
     '''
@@ -133,7 +133,7 @@ def plot_ensemble_feature_importance(model):
     plt.figure(figsize=(15, 15))
     plt.subplot(1, 2, 2)
     plt.barh(pos, feature_importance[sorted_idx], align='center')
-    plt.yticks(pos, X.columns[sorted_idx])
+    plt.yticks(pos, features.columns[sorted_idx])
     plt.xlabel('Relative Importance')
     plt.title('Variable Importance')
     plt.show()
