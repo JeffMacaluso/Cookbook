@@ -457,3 +457,40 @@ def stepwise_logistic_regression(X, y, k_fold=True):
 
     # Viewing the output as a sorted data frame
     return feature_selection_results.sort_values('Accuracy', ascending=False)
+
+
+#################################################################################################################
+##### Evaluating Clusters
+
+def evaluate_k_means(data, max_num_clusters=10, is_data_scaled=True):
+    '''
+    TODO: Write Docstring
+    '''
+    from sklearn.cluster import KMeans
+    
+    # Min max scaling the data if it isn't already scaled
+    if is_data_scaled == False:
+        from sklearn.preprocessing import MinMaxScaler
+        data = MinMaxScaler().fit_transform(data)
+    
+    # For gathering the results and plotting
+    inertia = []
+    clusters_to_try = np.arange(2, max_num_clusters+1)
+    
+    # Iterating through the clusters and gathering the inertia
+    for num_clusters in np.arange(2, max_num_clusters+1):
+        print('Fitting with {0} clusters'.format(num_clusters))
+        model = KMeans(n_clusters=num_clusters, n_jobs=-1)
+        model.fit(data)
+        inertia.append(model.inertia_)
+    
+    # Plotting the results
+    plt.figure(figsize=(10, 7))
+    plt.plot(clusters_to_try, inertia, marker='o')
+    plt.xticks(clusters_to_try)
+    plt.xlabel('# Clusters')
+    plt.ylabel('Inertia')
+    plt.title('Inertia by Number of Clusters')
+    plt.show()
+    
+    return inertia
