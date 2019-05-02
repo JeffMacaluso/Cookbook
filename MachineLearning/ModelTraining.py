@@ -494,3 +494,34 @@ def evaluate_k_means(data, max_num_clusters=10, is_data_scaled=True):
     plt.show()
     
     return inertia
+
+
+#################################################################################################################
+##### Saving & Loading Models
+
+def save_model(model, filepath, add_timestamp=True):
+    '''
+    TODO: Write docstring
+    '''
+    import os
+    
+    # Creating the sub directory if it does not exist
+    directory = filepath.split('/')[:-1]  # Gathering the components of the file path
+    directory = '/'.join(directory) + '/'  # Formatting into the directory/subdirectory/ format
+    if not os.path.exists(directory):
+        print('Creating the directory')
+        os.makedirs(directory)
+        
+    # Adding the date to the end of the file name if it doesn't exist
+    # E.g. instead of model.pkl, model_yyyymmdd.pkl
+    if add_timestamp == True:
+        import datetime
+        today = datetime.datetime.today().strftime('%Y%m%d')
+        today = '_' + today + '.'
+        filepath = filepath.split('.')
+        filepath.insert(1, today)
+        filepath = ''.join(filepath)
+    
+    print('Saving model')
+    pickle.dump(model, open(filepath, 'wb'))
+    print('Model saved')
