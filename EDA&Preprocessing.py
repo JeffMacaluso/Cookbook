@@ -638,3 +638,70 @@ def oversample_smote(training_features, training_labels, is_dataframe=True):
     return training_features_oversampled, training_labels_oversampled
 
 X_train_oversampled, y_train_oversampled = oversample_smote(X_train, y_train)
+
+
+# Target mean encoding
+def target_encode(train_variable, test_variable, train_label, smoothing=1, min_samples_leaf=1, noise_level=0):
+    '''
+    Mean target encoding using Daniele Micci-Barreca's technique from the following paper:
+    http://helios.mm.di.uoa.gr/~rouvas/ssi/sigkdd/sigkdd.vol3.1/barreca.pdf
+    
+    This function heavily borrows code from Olivier's Kaggle post:
+    https://www.kaggle.com/ogrellier/python-target-encoding-for-categorical-features
+    
+    Inputs:
+        - train_variable (Series): Variable in the training set to perform the encoding on.
+        - test_variable (Series): Variable in the testing set to be transformed.
+        - train_label (Series): The label in the training set to use for performing the encoding.
+        - smoothing (int): Balances the categorical average vs. the prior.
+        - min_samples_leaf (int): The minimum number of samples to take the category averagesinto account.
+        - noise_level (int): Amount of Gaussian noise to add in order to help prevent overfitting.
+    '''
+    
+    def add_noise(series, noise_level):
+        '''
+        Adds Gaussian noise to the data
+        '''
+        return series * (1 + noise_level * np.random.randn(len(series)))
+    
+    assert len(train_variable) == len(train_label)
+    assert train_variable.name == test_variable.name
+    
+    # Creating a data frame out of the training variable and label in order to get the averages of the label
+    # for the training variable
+    temp = pd.concat([train_variable, train_label], axis=1)
+    
+    # Computing the target mean
+    averages = temp.groupby(train_variable.name)[train_label.name].agg(['mean', 'count'])
+    
+    # Computing the smoothing
+    smoothing = 1 / (1 + np.exp(-(averages['count'] - min_samples_leaf) / smoothing))
+    
+    # Calculating the prior before adding the smoothing
+    prior = train_label.mean()
+    
+    # Adding the smoothing to the prior to get the posterior
+    # Larger samples will take the average into account less
+    averages[train_label.name] = prior * (1 - smoothing) + averages['mean'] * smoothing
+    
+    # Applying the averages to the training variable
+    fitted_train_variable = pd.merge(
+        train_variable.to_frame(train_variable.name),
+        averages.reset_index().rename(columns={'index': train_label.name, train_label.name: 'average'}),
+        on=train_variable.name, how='left')
+    fitted_train_variable = fitted_train_variable['average'].rename(train_variable.name + '_mean').fillna(prior)
+    fitted_train_variable.index = train_variable.index  # Restoring the index lost in pd.merge
+
+    # Applying the averages to the testing variable
+    fitted_test_variable = pd.merge(
+        test_variable.to_frame(test_variable.name),
+        averages.reset_index().rename(columns={'index': train_label.name, train_label.name: 'average'}),
+        on=test_variable.name, how='left')
+    fitted_test_variable = fitted_test_variable['average'].rename(test_variable.name + '_mean').fillna(prior)
+    fitted_test_variable.index = fitted_test_variable.index  # Restoring the index lost in pd.merge
+    
+    # Adding the noise if there is any
+    if noise_level != 0:
+        fitted_train_variable = add_noise(fitted_train_variable, noise_level)
+        fitted_test_variable = add_noise(fitted_test_variable, noise_level)
+    return fitted_train_variable, fitted_test_variable
