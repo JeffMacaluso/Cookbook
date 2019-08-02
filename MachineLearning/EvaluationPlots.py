@@ -122,21 +122,39 @@ plot_validation_curve(model, X, y, param_name, param_range)
 
 
 # Ensemble Model's Feature Importance
-def plot_ensemble_feature_importance(model, features):
+def plot_ensemble_feature_importance(model, features, top_n_features=None, plot_size=(15, 15), return_dataframe=False):
     '''
-    Plots the feature importance for an ensemble model
+    Plots the scaled feature importance for an ensemble model. Returns a data frame of these if requested.
+    
+    Inputs:
+        - model (): Scikit-learn, LightGBM, or xgboost ensemble model
+        - features (dataframe): The training features
+        - top_n_features (int): The number of features to plot
+        - plot_size (tuple): The size of the output plot
+        - return_dataframe (bool): Whether or not to output a data frame in the results
     '''
-    feature_importance = model.feature_importances_
-    feature_importance = 100.0 * (feature_importance / feature_importance.max())
-    sorted_idx = np.argsort(feature_importance)
-    pos = np.arange(sorted_idx.shape[0]) + .5
-    plt.figure(figsize=(15, 15))
-    plt.subplot(1, 2, 2)
-    plt.barh(pos, feature_importance[sorted_idx], align='center')
-    plt.yticks(pos, features.columns[sorted_idx])
+    # Putting the feature importances into a data frame
+    feature_importances = pd.DataFrame(model.feature_importances_,
+                                       index=features.columns,
+                                       columns=['Feature Importance']).sort_values('Feature Importance',
+                                                                                   ascending=False)
+    # Calculating the scaled importances and adding it as a column
+    scaled_feature_importances = 100.0 * (feature_importances['Feature Importance'] / feature_importances['Feature Importance'].max())
+    feature_importances['Scaled Feature Importance'] = scaled_feature_importances
+    
+    # Plotting the feature importances
+    plt.figure(figsize=plot_size)
+    if top_n_features != None:
+        feature_importances['Scaled Feature Importance'][:top_n_features].sort_values(ascending=True).plot.barh()
+    else:
+        feature_importances['Scaled Feature Importance'].sort_values(ascending=True).plot.barh()
     plt.xlabel('Relative Importance')
     plt.title('Variable Importance')
     plt.show()
+    
+    # Returning the feature importance data frame if requested
+    if return_dataframe == True:
+        return feature_importances
 
 
 # Visualizing the decision tree
