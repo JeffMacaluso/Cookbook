@@ -1,4 +1,5 @@
 import sys
+import os
 import time
 import numpy as np
 import pandas as pd
@@ -8,6 +9,7 @@ import seaborn as sns
 
 print(time.strftime('%Y/%m/%d %H:%M'))
 print('OS:', sys.platform)
+print('CPU Cores:', os.cpu_count())
 print('Python:', sys.version)
 print('NumPy:', np.__version__)
 print('Pandas:', pd.__version__)
@@ -26,9 +28,9 @@ pd.set_option('display.max_columns', None)
 ##### Assumption Testing
 # Linear Regression
 def linear_regression_assumptions(features, label, feature_names=None):
-    '''
+    """
     Tests a linear regression on the model to see if assumptions are being met
-    '''
+    """
     from sklearn.linear_model import LinearRegression
     
     # Setting feature names to x1, x2, x3, etc. if they are not defined
@@ -46,8 +48,9 @@ def linear_regression_assumptions(features, label, feature_names=None):
     
     # Returning linear regression R^2 and coefficients before performing diagnostics
     r2 = model.score(features, label)
-    print('\nR^2:', r2)
-    print('\nCoefficients')
+    print()
+    print('R^2:', r2, '\n')
+    print('Coefficients')
     print('-------------------------------------')
     print('Intercept:', model.intercept_)
     
@@ -63,18 +66,18 @@ def linear_regression_assumptions(features, label, feature_names=None):
 
     
     def linear_assumption():
-        '''
+        """
         Linearity: Assumes there is a linear relationship between the predictors and
-                   the response variable. If not, either a quadratic term or another
+                   the response variable. If not, either a polynomial term or another
                    algorithm should be used.
-        '''
+        """
         print('\n=======================================================================================')
         print('Assumption 1: Linear Relationship between the Target and the Features')
         
         print('Checking with a scatter plot of actual vs. predicted. Predictions should follow the diagonal line.')
         
         # Plotting the actual vs predicted values
-        sns.lmplot(x='Actual', y='Predicted', data=df_results, fit_reg=False, size=5)
+        sns.lmplot(x='Actual', y='Predicted', data=df_results, fit_reg=False, size=7)
         
         # Plotting the diagonal line
         line_coords = np.arange(df_results.min().min(), df_results.max().max())
@@ -82,55 +85,66 @@ def linear_regression_assumptions(features, label, feature_names=None):
                  color='darkorange', linestyle='--')
         plt.title('Actual vs. Predicted')
         plt.show()
+        print('If non-linearity is apparent, consider adding a polynomial term')
         
         
-    def multivariate_normal_assumption(p_value_thresh=0.05):
-        '''
-        Normality: Assumes that the predictors have normal distributions. If they are not normal,
-                   a non-linear transformation like a log transformation or box-cox transformation
-                   can be performed on the non-normal variable.
-        '''
+    def normal_errors_assumption(p_value_thresh=0.05):
+        """
+        Normality: Assumes that the error terms are normally distributed. If they are not,
+        nonlinear transformations of variables may solve this.
+               
+        This assumption being violated primarily causes issues with the confidence intervals
+        """
         from statsmodels.stats.diagnostic import normal_ad
         print('\n=======================================================================================')
-        print('Assumption 2: All variables are multivariate normal')
+        print('Assumption 2: The error terms are normally distributed')
+        print()
+    
         print('Using the Anderson-Darling test for normal distribution')
-        print('p-values from the test - below 0.05 generally means normality:')
-        print()
-        non_normal_variables = 0
-        
-        # Performing the Anderson-Darling test on each variable to test for normality
-        for feature in range(features.shape[1]):
-            p_value = normal_ad(features[:, feature])[1]
-            
-            # Adding to total count of non-normality if p-value exceeds threshold
-            if p_value > p_value_thresh:
-                non_normal_variables += 1
-            
-            # Printing p-values from the test
-            print('{0}: {1}'.format(feature_names[feature], p_value))
-                    
-        print('\n{0} non-normal variables'.format(non_normal_variables))
-        print()
 
-        if non_normal_variables == 0:
+        # Performing the test on the residuals
+        p_value = normal_ad(df_results['Residuals'])[1]
+        print('p-value from the test - below 0.05 generally means non-normal:', p_value)
+    
+        # Reporting the normality of the residuals
+        if p_value < p_value_thresh:
+            print('Residuals are not normally distributed')
+        else:
+            print('Residuals are normally distributed')
+    
+        # Plotting the residuals distribution
+        plt.subplots(figsize=(12, 6))
+        plt.title('Distribution of Residuals')
+        sns.distplot(df_results['Residuals'])
+        plt.show()
+    
+        print()
+        if p_value > p_value_thresh:
             print('Assumption satisfied')
         else:
             print('Assumption not satisfied')
+            print()
+            print('Confidence intervals will likely be affected')
+            print('Try performing nonlinear transformations on variables')
         
         
     def multicollinearity_assumption():
-        '''
+        """
         Multicollinearity: Assumes that predictors are not correlated with each other. If there is
-                           correlation among the predictors, then either removing prepdictors with
-                           high Variance Inflation Factor (VIF) values or 
-        '''
+                           correlation among the predictors, then either remove prepdictors with high
+                           Variance Inflation Factor (VIF) values or perform dimensionality reduction
+                           
+                           This assumption being violated causes issues with interpretability of the 
+                           coefficients and the standard errors of the coefficients.
+        """
         from statsmodels.stats.outliers_influence import variance_inflation_factor
         print('\n=======================================================================================')
         print('Assumption 3: Little to no multicollinearity among predictors')
         
         # Plotting the heatmap
-        ax = plt.subplot(111)
-        sns.heatmap(pd.DataFrame(features, columns=feature_names).corr())
+        plt.figure(figsize = (10,8))
+        sns.heatmap(pd.DataFrame(features, columns=feature_names).corr(), annot=True)
+        plt.title('Correlation of Variables')
         plt.show()
         
         print('Variance Inflation Factors (VIF)')
@@ -156,18 +170,24 @@ def linear_regression_assumptions(features, label, feature_names=None):
                 print('Assumption satisfied')
             else:
                 print('Assumption possibly satisfied')
+                print()
+                print('Coefficient interpretability may be problematic')
+                print('Consider removing variables with a high Variance Inflation Factor (VIF)')
         else:
             print('Assumption not satisfied')
+            print()
+            print('Coefficient interpretability will be problematic')
+            print('Consider removing variables with a high Variance Inflation Factor (VIF)')
         
         
     def autocorrelation_assumption():
-        '''
+        """
         Autocorrelation: Assumes that there is no autocorrelation in the residuals. If there is
-                         autocorrelation, then there is a patern that is not explained due to
+                         autocorrelation, then there is a pattern that is not explained due to
                          the current value being dependent on the previous value.
                          This may be resolved by adding a lag variable of either the dependent
                          variable or some of the predictors.
-        '''
+        """
         from statsmodels.stats.stattools import durbin_watson
         print('\n=======================================================================================')
         print('Assumption 4: No Autocorrelation')
@@ -176,39 +196,45 @@ def linear_regression_assumptions(features, label, feature_names=None):
         print('0 to 2< is positive autocorrelation')
         print('>2 to 4 is negative autocorrelation')
         print('-------------------------------------')
+        
         durbinWatson = durbin_watson(df_results['Residuals'])
         print('Durbin-Watson:', durbinWatson)
+        
         if durbinWatson < 1.5:
-            print('Signs of positive autocorrelation')
-            print('\nAssumption not satisfied')
+            print('Signs of positive autocorrelation', '\n')
+            print('Assumption not satisfied', '\n')
+            print('Consider adding lag variables')
         elif durbinWatson > 2.5:
-            print('Signs of negative autocorrelation')
-            print('\nAssumption not satisfied')
+            print('Signs of negative autocorrelation', '\n')
+            print('Assumption not satisfied', '\n')
+            print('Consider adding lag variables')
         else:
-            print('Little to no autocorrelation')
-            print('\nAssumption satisfied')
+            print('Little to no autocorrelation', '\n')
+            print('Assumption satisfied')
 
             
     def homoscedasticity_assumption():
-        '''
+        """
         Homoscedasticity: Assumes that the errors exhibit constant variance
-        '''
+        """
         print('\n=======================================================================================')
         print('Assumption 5: Homoscedasticity of Error Terms')
         print('Residuals should have relative constant variance')
         
         # Plotting the residuals
-        ax = plt.subplot(111)
+        plt.subplots(figsize=(12, 6))
+        ax = plt.subplot(111)  # To remove spines
         plt.scatter(x=df_results.index, y=df_results.Residuals, alpha=0.5)
         plt.plot(np.repeat(0, df_results.index.max()), color='darkorange', linestyle='--')
         ax.spines['right'].set_visible(False)  # Removing the right spine
         ax.spines['top'].set_visible(False)  # Removing the top spine
         plt.title('Residuals')
-        plt.show()  
+        plt.show() 
+        print('If heteroscedasticity is apparent, confidence intervals and predictions will be affected')
         
         
     linear_assumption()
-    multivariate_normal_assumption()
+    normal_errors_assumption()
     multicollinearity_assumption()
     autocorrelation_assumption()
     homoscedasticity_assumption()

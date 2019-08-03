@@ -4,6 +4,7 @@ Not discarding to maintain commit history.
 '''
 
 import sys
+import os
 import time
 import numpy as np
 import pandas as pd
@@ -13,6 +14,7 @@ import seaborn as sns
 
 print(time.strftime('%Y/%m/%d %H:%M'))
 print('OS:', sys.platform)
+print('CPU Cores:', os.cpu_count())
 print('Python:', sys.version)
 print('NumPy:', np.__version__)
 print('Pandas:', pd.__version__)

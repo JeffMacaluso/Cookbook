@@ -1,4 +1,5 @@
 import sys
+import os
 import time
 import numpy as np
 import pandas as pd
@@ -8,6 +9,7 @@ import seaborn as sns
 
 print(time.strftime('%Y/%m/%d %H:%M'))
 print('OS:', sys.platform)
+print('CPU Cores:', os.cpu_count())
 print('Python:', sys.version)
 print('NumPy:', np.__version__)
 print('Pandas:', pd.__version__)
@@ -30,7 +32,7 @@ from sklearn.model_selection import train_test_split
 X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.30, random_state=46)
 
 # K-fold cross validation
-from sklearn.model_selection import KFold
+from sklearn.model_selection import KFold, cross_val_score
 k_fold = KFold(n_splits=10, shuffle=True, random_state=46)
 cross_val_score(model, X, y, cv=k_fold, n_jobs=-1)
 
@@ -267,8 +269,8 @@ def ensemble_prediction_intervals(model, X, X_train=None, y_train=None, percenti
 #################################################################################################################
 ##### Ensemble Predictions
   
-# Ensemble predictions - xgboost
-def ensemble_xgboost_predictions(train_features, train_labels, prediction_features, num_models=3):
+# Blending predictions - xgboost
+def blend_xgboost_predictions(train_features, train_labels, prediction_features, num_models=3):
     '''
     Trains the number of specified xgboost models and averages the predictions
     
@@ -337,8 +339,8 @@ def ensemble_xgboost_predictions(train_features, train_labels, prediction_featur
     
     return predictions
   
-# Ensemble predictions - Scikit-Learn
-def ensemble_sklearn_predictions(model, train_features, train_labels, prediction_features, num_models=3):
+# Blending predictions - Scikit-Learn
+def blend_sklearn_predictions(model, train_features, train_labels, prediction_features, num_models=3):
     '''
     Trains the number of specified scikit-learn models and averages the predictions
     
@@ -388,3 +390,138 @@ def ensemble_sklearn_predictions(model, train_features, train_labels, prediction
     predictions = np.asarray(predictions).mean(axis=0)
     
     return predictions
+
+
+#################################################################################################################
+##### Feature Selection
+
+def stepwise_logistic_regression(X, y, k_fold=True):
+    '''
+    TODO: 
+        - Write docstring
+        - Fix IndexError for k_fold
+    '''
+    # Enforcing numpy arrays to use X[:, feature_index] instead of X.iloc[:, feature_index] for dataframes
+    X_feature_selection = np.array(X)
+    X_train_feature_selection, X_test_feature_selection, y_train, y_test = train_test_split(
+        X_feature_selection, y, test_size=0.30, random_state=46)
+
+    # Creating a list of the number of features to try in the stepwise selection
+    num_features_list = np.arange(X.shape[1], 2, -1)
+
+    # List of accuracy to be filled within the for loop
+    accuracies = []
+
+    # Testing stepwise feature selection with a different number of features
+    for num_features in num_features_list:
+
+        # Printing the progress at different intervals to not spam the output
+        if num_features % 5 == 0:
+            print('Testing with {0} features'.format(num_features))
+
+        # Using stepwise feature selection to determine which features to select
+        estimator = LogisticRegression()
+        selector = feature_selection.RFE(estimator, num_features, step=1)
+        selector.fit(X_train_feature_selection, y_train)
+        feature_indexes = list(selector.get_support(indices=True))
+        
+        # Training a final model with the specific features selected and gathering the accuracy
+        model = LogisticRegression()
+        
+        # Evaluating with either k-folds cross validation
+        if k_fold == True:
+            # Constructing new X with the updated features
+            X_feature_selection = X_feature_selection[:, feature_indexes]
+            k_fold = KFold(n_splits=5, shuffle=True, random_state=46)
+            mean_accuracy = cross_val_score(model, X_feature_selection, y, cv=5, n_jobs=-1).mean()
+            accuracies.append(mean_accuracy)
+            
+        # Evaluating with the holdout method
+        else:
+            # Constructing new X_train/X_test with the updated features
+            X_train_feature_selection = X_train_feature_selection[:, feature_indexes]
+            X_test_feature_selection = X_test_feature_selection[:, feature_indexes]
+            model.fit(X_train_feature_selection, y_train)
+            accuracy = model.score(X_test_feature_selection, y_test)
+            accuracies.append(accuracy)
+
+    # Putting the results into a data frame and creating a plot of the accuracy by number of features
+    feature_selection_results = pd.DataFrame(
+        {'Accuracy': accuracies, 'NumFeatures': num_features_list})
+    plt.plot(feature_selection_results['NumFeatures'],
+             feature_selection_results['Accuracy'])
+    plt.title('Accuracy by Number of Features')
+    plt.xlabel('Number of Features')
+    plt.ylabel('Accuracy')
+    plt.show()
+
+    # Viewing the output as a sorted data frame
+    return feature_selection_results.sort_values('Accuracy', ascending=False)
+
+
+#################################################################################################################
+##### Evaluating Clusters
+
+def evaluate_k_means(data, max_num_clusters=10, is_data_scaled=True):
+    '''
+    TODO: Write Docstring
+    '''
+    from sklearn.cluster import KMeans
+    
+    # Min max scaling the data if it isn't already scaled
+    if is_data_scaled == False:
+        from sklearn.preprocessing import MinMaxScaler
+        data = MinMaxScaler().fit_transform(data)
+    
+    # For gathering the results and plotting
+    inertia = []
+    clusters_to_try = np.arange(2, max_num_clusters+1)
+    
+    # Iterating through the clusters and gathering the inertia
+    for num_clusters in np.arange(2, max_num_clusters+1):
+        print('Fitting with {0} clusters'.format(num_clusters))
+        model = KMeans(n_clusters=num_clusters, n_jobs=-1)
+        model.fit(data)
+        inertia.append(model.inertia_)
+    
+    # Plotting the results
+    plt.figure(figsize=(10, 7))
+    plt.plot(clusters_to_try, inertia, marker='o')
+    plt.xticks(clusters_to_try)
+    plt.xlabel('# Clusters')
+    plt.ylabel('Inertia')
+    plt.title('Inertia by Number of Clusters')
+    plt.show()
+    
+    return inertia
+
+
+#################################################################################################################
+##### Saving & Loading Models
+
+def save_model(model, filepath, add_timestamp=True):
+    '''
+    TODO: Write docstring
+    '''
+    import os
+    
+    # Creating the sub directory if it does not exist
+    directory = filepath.split('/')[:-1]  # Gathering the components of the file path
+    directory = '/'.join(directory) + '/'  # Formatting into the directory/subdirectory/ format
+    if not os.path.exists(directory):
+        print('Creating the directory')
+        os.makedirs(directory)
+        
+    # Adding the date to the end of the file name if it doesn't exist
+    # E.g. instead of model.pkl, model_yyyymmdd.pkl
+    if add_timestamp == True:
+        import datetime
+        today = datetime.datetime.today().strftime('%Y%m%d')
+        today = '_' + today + '.'
+        filepath = filepath.split('.')
+        filepath.insert(1, today)
+        filepath = ''.join(filepath)
+    
+    print('Saving model')
+    pickle.dump(model, open(filepath, 'wb'))
+    print('Model saved')

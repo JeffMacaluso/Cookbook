@@ -79,6 +79,7 @@ print('The model had a RMSE on the test set of {0}'.format(testRMSE))
 
 
 # K-folds
+from pyspark.ml.tuning import CrossValidator
 from pyspark.ml.evaluation import RegressionEvaluator
 
 regEval = RegressionEvaluator().setLabelCol('label')
@@ -122,6 +123,9 @@ def sliding_window_evaluation(dataframe, feature_columns, num_windows=5, test_si
     output = assembler.transform(dataframe)
     vectorizedDF = output.select('features', col(labelColumn).alias('label'), 'window_num')
     
+    # Gathering the total RMSE from all windows
+    total_RMSE = []
+    
    # Looping over windows, splitting into train/test sets, and training and evaluating a model on each set
     for window in range(1, num_windows+1):
         
@@ -140,12 +144,25 @@ def sliding_window_evaluation(dataframe, feature_columns, num_windows=5, test_si
         # Gathering evaluation and summary metrics
         modelSummary = model.summary
         
+        # Creating a plot of the predictions and actuals to see if there is a significant lag
+        predictDF = model.transform(testWindow)  # Generating predictions
+        total_RMSE.append(testRMSE)
+        fig, ax = plt.subplots()
+        ax.plot(predictDF.select('label').collect(), label='Label')
+        ax.plot(predictDF.select('prediction').collect(), label='Prediction')
+        plt.legend()
+        plt.title('Test Set: Predictions and Actuals')
+        
+        # Reporting results
         print('Window', window)
         print('Training Size:', trainWindow.count())
         print('Testing Size:', testWindow.count())
         print("r2: %f" % modelSummary.r2)
         print("Training RMSE: %f" % modelSummary.rootMeanSquaredError)
+        plt.show()  # Plot of actuals vs predictions
         print()
+        
+    print('Average RMSE for {0} windows: {1}'.format(num_windows, np.mean(total_RMSE)))
         
         
 feature_columns = ['previous_hour_price', 'previous_hour_high_low_range', 'previous_hour_volume']
@@ -237,3 +254,52 @@ print("objectiveHistory: %s" % str(trainingSummary.objectiveHistory))
 trainingSummary.residuals.show()
 print("RMSE: %f" % trainingSummary.rootMeanSquaredError)
 print("r2: %f" % trainingSummary.r2)
+
+
+#################################################################################################################
+##### Model Training
+# Prediction Intervals with Quantile Regression in MML/LightGBM
+def prediction_with_intervals(train, test, confidence_level=0.95):
+    '''
+    Trains LightGBM models and creates predictions on the data
+  
+    Input:
+      - train: The training set with the label and vectorized features
+      - test: The testing set with the label and vectorized features
+      - confidence_level: The percent confidence level for the quantile regression
+    
+    Output: 
+      - A Spark dataframe with the point estimates and upper/lower bounds
+  
+    TODO: Add more inputs for hyperparameter tuning
+    '''
+    from mmlspark import LightGBMRegressor
+  
+    # Calculating the upper/lower buffer for the quantile regressions
+    alpha_buffer = (1 - confidence_level) / 2
+  
+    # Training all three models
+    # Lower bound of 95% confidence interval
+    model_lower_bound = LightGBMRegressor(application='quantile',
+                                          alpha=confidence_level - alpha_buffer,
+                                          learningRate=0.3).fit(train)
+
+    # Upper bound of 95% confidence interval
+    model_upper_bound = LightGBMRegressor(application='quantile',
+                                          alpha=confidence_level + alpha_buffer,
+                                          learningRate=0.3).fit(train)
+
+    # Point prediction
+    model = LightGBMRegressor(application='regression',
+                             learningRate=0.3).fit(train)
+    
+    # Scoring on the testing set and assembling the results
+    point_predictions = model.transform(test)
+    upper_predictions = model_upper_bound.transform(test).withColumnRenamed('prediction', 'UpperBound')
+    lower_predictions = model_lower_bound.transform(test).withColumnRenamed('prediction', 'LowerBound')
+    
+    # Assembling the results
+    scored_data = (point_predictions.join(upper_predictions, ['label', 'features'])
+                                    .join(lower_predictions, ['label', 'features']))
+    
+    return scored_data
