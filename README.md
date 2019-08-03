@@ -1,6 +1,10 @@
 # Cookbook
 Personal reference scripts for commonly used code
 
+- **[DevOps](https://github.com/JeffMacaluso/Cookbook/tree/master/DevOps)**: A folder containing scripts for operationalizing machine learning models
+    - **[Flask](https://github.com/JeffMacaluso/Cookbook/tree/master/DevOps/Flask)**: Operationalizing a trained machine learning model as a RESTful API
+        - [Web App](https://github.com/JeffMacaluso/Cookbook/blob/master/DevOps/Flask/app.py)
+        - [Sending Requests](https://github.com/JeffMacaluso/Cookbook/blob/master/DevOps/Flask/request.py)
 - **[Machine Learning](https://github.com/JeffMacaluso/Cookbook/tree/master/MachineLearning):** A folder containing scripts for commonly used machine learning code
     - **[Model Training](https://github.com/JeffMacaluso/Cookbook/blob/master/MachineLearning/ModelTraining.py):** Training, tuning, and evaluating models
         - [Cross Validation](https://github.com/JeffMacaluso/Cookbook/blob/master/MachineLearning/ModelTraining.py#L27)
