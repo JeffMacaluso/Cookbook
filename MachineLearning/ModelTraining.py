@@ -97,12 +97,13 @@ print('Best Estimator:', model.best_estimator_, '\n',
       'Best Score:', model.best_score_)
 
 # Iteratively training ensemble models
-def iteratively_train_random_forest(model, num_trees_to_try, X_train, y_train, X_test, y_test):
+def iteratively_train_ensemble_model(model, num_trees_to_try, X_train, y_train, X_test, y_test):
     '''
     TODO: 
         - Write docstring
         - Allow different metrics
         - Adjust for regression vs. classification
+        - Think of how to add early stopping
     '''
     # Enforcing the model has a warm start for iterative training
     if model.warm_start == False:
