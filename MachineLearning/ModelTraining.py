@@ -96,6 +96,39 @@ print('Best Estimator:', model.best_estimator_, '\n',
       'Best Parameters:', model.best_params_, '\n', 
       'Best Score:', model.best_score_)
 
+# Iteratively training ensemble models
+def iteratively_train_random_forest(model, num_trees_to_try, X_train, y_train, X_test, y_test):
+    '''
+    TODO: 
+        - Write docstring
+        - Allow different metrics
+        - Adjust for regression vs. classification
+    '''
+    # Enforcing the model has a warm start for iterative training
+    if model.warm_start == False:
+        model.set_params(warm_start=True)
+    
+    # Adding a seed if it does not exist
+    if model.random_state == None:
+        model.set_params(random_state=46)
+        
+    # Collecting the error for plotting
+    errors = []
+    
+    # Iteratively training the model
+    for num_trees in num_trees_to_try:
+        model.set_params(n_estimators=num_trees)
+        print('Fitting with {0} trees'.format(num_trees))
+        model.fit(X_train, y_train)
+        errors.append(metrics.log_loss(y_test, growing_rf.predict_proba(X_test)))
+    
+    # Plotting the error by the number of trees
+    plt.figure(figsize=(9, 5))
+    plt.plot(num_trees_to_try, errors, '-r')
+    plt.title('Error by Number of Trees')
+    plt.xlabel('Number of Trees')
+    plt.ylabel('Error')
+
 #################################################################################################################
 ##### Class Probability Cutoffs
 
