@@ -1,10 +1,6 @@
 # Cookbook
 Personal reference scripts for commonly used code
 
-- **[DevOps](https://github.com/JeffMacaluso/Cookbook/tree/master/DevOps)**: A folder containing scripts for operationalizing machine learning models
-    - **[Flask](https://github.com/JeffMacaluso/Cookbook/tree/master/DevOps/Flask)**: Operationalizing a trained machine learning model as a RESTful API
-        - [Web App](https://github.com/JeffMacaluso/Cookbook/blob/master/DevOps/Flask/app.py)
-        - [Sending Requests](https://github.com/JeffMacaluso/Cookbook/blob/master/DevOps/Flask/request.py)
 - **[Machine Learning](https://github.com/JeffMacaluso/Cookbook/tree/master/MachineLearning):** A folder containing scripts for commonly used machine learning code
     - **[Model Training](https://github.com/JeffMacaluso/Cookbook/blob/master/MachineLearning/ModelTraining.py):** Training, tuning, and evaluating models
         - [Cross Validation](https://github.com/JeffMacaluso/Cookbook/blob/master/MachineLearning/ModelTraining.py#L27)
@@ -41,3 +37,8 @@ Personal reference scripts for commonly used code
     - [TF-IDF](https://github.com/JeffMacaluso/Cookbook/blob/master/NLP.py#L44)
     - [Topic Modeling](https://github.com/JeffMacaluso/Cookbook/blob/d3c00bfdb8daa9685babaf698292e450d72101f0/NLP.py#L60)
 - **[Deep Learning (CNN)](https://nbviewer.jupyter.org/github/JeffMacaluso/Cookbook/blob/master/DeepLearning-CNN.ipynb):** Convolutional neural networks in Keras, CNTK, PyTorch, and TensorFlow
+- **[DevOps](https://github.com/JeffMacaluso/Cookbook/tree/master/DevOps)**: A folder containing scripts for operationalizing machine learning models
+    - **[Flask](https://github.com/JeffMacaluso/Cookbook/tree/master/DevOps/Flask)**: Operationalizing a trained machine learning model as a RESTful API
+        - [Web App](https://github.com/JeffMacaluso/Cookbook/blob/master/DevOps/Flask/app.py)
+        - [Sending Requests](https://github.com/JeffMacaluso/Cookbook/blob/master/DevOps/Flask/request.py)
+        
