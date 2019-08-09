@@ -121,7 +121,7 @@ def iteratively_train_ensemble_model(model, num_trees_to_try, X_train, y_train, 
         model.set_params(n_estimators=num_trees)
         print('Fitting with {0} trees'.format(num_trees))
         model.fit(X_train, y_train)
-        errors.append(metrics.log_loss(y_test, growing_rf.predict_proba(X_test)))
+        errors.append(metrics.log_loss(y_test, model.predict_proba(X_test)))
     
     # Plotting the error by the number of trees
     plt.figure(figsize=(9, 5))
