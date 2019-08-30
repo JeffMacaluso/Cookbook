@@ -229,34 +229,39 @@ def ellipses_indices_of_outliers(X, contamination=0.1):
 
 
 # Detecting outliers with the Isolation Forest method
-def isolator_forest_indices_of_outliers(X, contamination=0.1, n_estimators=100):
+def isolation_forest_indices_of_outliers(X, contamination='auto', n_estimators=100):
     '''
     Detects outliers using the isolation forest method
     
-    Input: An array of all variables to detect outliers for
+    Inputs:
+        - X (array or data frame): Non-categorical variables to detect outliers for
+        - Contamination (float or 'auto'): The percentage of outliers
+        - n_estimators (int): The number of treess to use in the isolation forest
     Output: An array with indices of detected outliers
     '''
     from sklearn.ensemble import IsolationForest
     
     # Copying to prevent changes to the input array
     X = X.copy()
-    
-    # Dropping categorical columns
-    non_categorical = []
-    for feature in range(X.shape[1]):
-        num_unique_values = len(np.unique(X[:, feature]))
-        if num_unique_values > 30:
-            non_categorical.append(feature)
-    X = X[:, non_categorical]  # Subsetting to columns without categorical indexes
-    
+
     # Creating and fitting the detector
-    outlier_detector = IsolationForest(contamination=contamination, n_estimators=n_estimators)
+    outlier_detector = IsolationForest(contamination=contamination,
+                                       n_estimators=n_estimators,
+                                       behaviour='new')
     outlier_detector.fit(X)
     
     # Predicting outliers and outputting an array with 1 if it is an outlier
     outliers = outlier_detector.predict(X)
     outlier_indices = np.where(outliers == -1)
     return outlier_indices
+
+
+# Detecting outliers and dropping them from the dataset
+outlier_indexes_forest = helper.isolation_forest_indices_of_outliers(X.select_dtypes(exclude='category'),
+                                                              contamination='auto',
+                                                              n_estimators=400)
+print('Outliers detected: {0}'.format(len(outlier_indexes_forest[0])))
+
 
 # Detecting outliers with the One Class SVM method
 def one_class_svm_indices_of_outliers(X):
