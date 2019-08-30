@@ -255,11 +255,8 @@ def isolation_forest_indices_of_outliers(X, contamination='auto', n_estimators=1
     outlier_indices = np.where(outliers == -1)
     return outlier_indices
 
-
-# Detecting outliers and dropping them from the dataset
 outlier_indexes_forest = helper.isolation_forest_indices_of_outliers(X.select_dtypes(exclude='category'),
-                                                              contamination='auto',
-                                                              n_estimators=400)
+                                                              contamination='auto')
 print('Outliers detected: {0}'.format(len(outlier_indexes_forest[0])))
 
 
