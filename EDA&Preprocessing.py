@@ -247,7 +247,8 @@ def isolation_forest_indices_of_outliers(X, contamination='auto', n_estimators=1
     # Creating and fitting the detector
     outlier_detector = IsolationForest(contamination=contamination,
                                        n_estimators=n_estimators,
-                                       behaviour='new')
+                                       behaviour='new',
+                                       n_jobs=-1)
     outlier_detector.fit(X)
     
     # Predicting outliers and outputting an array with 1 if it is an outlier
