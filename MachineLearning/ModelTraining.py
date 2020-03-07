@@ -373,16 +373,17 @@ def blend_xgboost_predictions(train_features, train_labels, prediction_features,
     
     return predictions
   
-# Blending predictions - Scikit-Learn
-def blend_sklearn_predictions(model, train_features, train_labels, prediction_features, num_models=3):
+# Blending predictions - Scikit-Learn & LightGBM
+def blend_predictions(model, train_features, train_labels, prediction_features, num_models=3, average_results=False):
     '''
-    Trains the number of specified scikit-learn models and averages the predictions
+    Trains the number of specified scikit-learn or LightGBM models and averages the predictions
     
     Inputs: 
-        - train_features: A numpy array of the features for the training dataset
-        - train_labels: A numpy array of the labels for the training dataset
-        - prediction_features: A numpy array of the features to create predictions for
-        - num_models: The number of models to train
+        - train_features (numpy array): The features for the training dataset
+        - train_labels (numpy array): The labels for the training dataset
+        - prediction_features (numpy array): The features to create predictions for
+        - num_models (int): The number of models to train
+        - average_results (bool): Whether or not to return the raw results or the averaged results
         
     Outputs:
         - A numpy array of point or class probability predictions
@@ -421,7 +422,8 @@ def blend_sklearn_predictions(model, train_features, train_labels, prediction_fe
         predictions.append(model_prediction)
     
     # Averaging the predictions for output
-    predictions = np.asarray(predictions).mean(axis=0)
+    if average_results == True:
+        predictions = np.asarray(predictions).mean(axis=0)
     
     return predictions
 
