@@ -1,0 +1,58 @@
+import sys
+import os
+import time
+import numpy as np
+import pandas as pd
+import matplotlib.pyplot as plt
+import seaborn as sns
+
+print(time.strftime('%Y/%m/%d %H:%M'))
+print('OS:', sys.platform)
+print('CPU Cores:', os.cpu_count())
+print('Python:', sys.version)
+print('NumPy:', np.__version__)
+print('Pandas:', pd.__version__)
+
+# Formatting for seaborn plots
+sns.set_context('notebook', font_scale=1.1)
+sns.set_style('ticks')
+
+# Displays all dataframe columns
+pd.set_option('display.max_columns', None)
+
+%matplotlib inline
+
+#################################################################################################################
+### Plotting cluster averages and standard deviations around the average for two variables
+# Assumes df has one row for each cluster and columns for the values and standard deviations
+
+# Getting the colors for the clusters
+cluster_color_map = pd.DataFrame({'cluster': df['cluster'].unique(),
+                                  'color': sns.color_palette('Set1', df['cluster'].nunique())})
+
+# Merging the data frames to have one with the x/y averages, standard deviations, and colors
+data_to_plot = df.merge(cluster_color_map).merge(df_std)
+
+# Plotting the average values
+plt.figure(figsize=(10, 10))
+plt.scatter(x=data_to_plot['x'], y=data_to_plot['y'], 
+            color=data_to_plot['color'],
+            s=data_to_plot['num_observations'])
+
+# Plotting the standard deviation around each point
+# Doing this in a loop to specify the color and size of the lines
+for line in data_to_plot.iterrows():
+    plt.errorbar(x=line[1]['x'],
+                 y=line[1]['y'],
+                 xerr=line[1]['x_std'],
+                 yerr=line[1]['y_std'],
+                 color=line[1]['color'],
+                 elinewidth=line[1]['num_observations'] / 100,  # Scaling the lines to be smaller
+                 alpha=0.25)
+
+plt.title('Cluster Averages for X and Y')
+plt.xlabel('X')
+plt.ylabel('Y')
+plt.show()
+
+#################################################################################################################
