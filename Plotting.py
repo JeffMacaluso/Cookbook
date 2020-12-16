@@ -56,3 +56,6 @@ plt.ylabel('Y')
 plt.show()
 
 #################################################################################################################
+#### Misc one liners
+
+plt.legend(bbox_to_anchor=(1.01, 1), loc='upper left')  # Puts legend in the top right outside of the graph
