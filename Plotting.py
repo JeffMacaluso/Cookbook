@@ -59,3 +59,8 @@ plt.show()
 #### Misc one liners
 
 plt.legend(bbox_to_anchor=(1.01, 1), loc='upper left')  # Puts legend in the top right outside of the graph
+
+# Forcing a discrete color palette for hue
+# Docs: https://seaborn.pydata.org/tutorial/color_palettes.html
+# Examples: https://chrisalbon.com/python/data_visualization/seaborn_color_palettes/
+sns.scatterplot(x='x', y='y', hue='z', data=df, palette=sns.color_palette(palette='husl', n_colors=n))
