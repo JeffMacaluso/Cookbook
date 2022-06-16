@@ -25,6 +25,19 @@ pd.set_option('display.max_columns', None)
 %matplotlib inline
 
 #################################################################################################################
+def find_max_qcut_bins(data, max_bins=25):
+    '''
+    Returns the max number of bins for pd.qcut()
+    '''
+    found_max_bins = False
+    while found_max_bins == False:
+        try:
+            pd.qcut(data, q=max_bins)
+            return max_bins
+        except:
+            max_bins -= 1
+
+#################################################################################################################
 ##### Assumption Testing
 # Linear Regression
 def linear_regression_assumptions(features, label, feature_names=None):
