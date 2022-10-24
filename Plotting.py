@@ -68,4 +68,4 @@ sns.scatterplot(x='x', y='y', hue='z', data=df, palette=sns.color_palette(palett
 
 # Formats y axis as a percentage
 import matplotlib.ticker as mtick
-ax.yaxis.set_major_formatter(mtick.PercentFormatter(1))  # For values from 0 to 1
+ax.yaxis.set_major_formatter(mtick.PercentFormatter(xmax=1, decimals=0))
