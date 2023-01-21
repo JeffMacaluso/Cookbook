@@ -708,3 +708,7 @@ def target_encode(train_variable, test_variable, train_label, smoothing=1, min_s
         fitted_train_variable = add_noise(fitted_train_variable, noise_level)
         fitted_test_variable = add_noise(fitted_test_variable, noise_level)
     return fitted_train_variable, fitted_test_variable
+
+
+# Groupby two levels and get the percentage of rows for the second level within groups of the first level
+df.groupby(['first_level', 'second_level']).size().groupby(level=0).apply(lambda x:100 * x / float(x.sum()))
