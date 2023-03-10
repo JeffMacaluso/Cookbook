@@ -512,6 +512,9 @@ from sklearn import preprocessing
 min_max_scaler = preprocessing.MinMaxScaler()
 X_norm = min_max_scaler.fit_transform(X)  # Normalizing across columns
 
+# Grouping by multiple levels and getting the percentage of the second level by the first level
+df.groupby(['level_1', 'level_2']).size().groupby(level='level_1').apply(lambda x: x / x.sum())
+
 # Principal Component Analysis (PCA)
 def fit_PCA(X, num_components=0.99):
     '''
