@@ -25,7 +25,7 @@ pd.set_option('display.max_columns', None)
 %matplotlib inline
 
 #################################################################################################################
-def find_max_qcut_bins(data, max_bins=25):
+def find_max_qcut_bins(data: np.ndarray, max_bins: int = 25) -> int:
     '''
     Returns the max number of bins for pd.qcut()
     '''
