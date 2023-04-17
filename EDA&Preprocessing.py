@@ -35,7 +35,7 @@ profile.to_file(outputfile='/tmp/myoutputfile.html')  # Saving report as a file
 ##### Missing Values
 
 # Printing the percentage of missing values per column
-def percent_missing(dataframe):
+def percent_missing(dataframe: pd.DataFrame) -> None:
     '''
     Prints the percentage of missing values for each column in a dataframe
     '''
@@ -68,12 +68,12 @@ df.fillna(value=df.mean(), inplace=True)
 df.fillna(method='ffill', inplace=True)  #'backfill' for interpolating the other direction
 
 # Filling missing values with a predictive model
-def predict_missing_values(data, column, correlationThresh=0.5, cross_validations=3):
+def predict_missing_values(data, column, correlationThresh: float = 0.5, cross_validations: int = 3):
     '''
     Fills missing values using a random forest model on highly correlated columns
     Returns a series of the column with missing values filled
     
-    To-do: - Add the option to specify columns to use for predictions
+    TODO: - Add the option to specify columns to use for predictions
            - Look into other options for handling missing predictors
     '''
     from sklearn.model_selection import cross_val_score
@@ -159,7 +159,7 @@ df[colName] = predict_missing_values(df, colName)
 
 # Detecting outliers with Interquartile Range (IQR)
 # Note: The function in its current form is taken from Chris Albon's Machine Learning with Python Cookbook
-def iqr_indices_of_outliers(X):
+def iqr_indices_of_outliers(X: np.ndarray) -> np.ndarray:
     '''
     Detects outliers using the interquartile range (IQR) method
     
@@ -175,7 +175,7 @@ def iqr_indices_of_outliers(X):
 
 
 # Detecting outliers with Z scores
-def z_score_indices_of_outliers(X, threshold=3):
+def z_score_indices_of_outliers(X: np.ndarray, threshold: float = 3) -> np.ndarray:
     '''
     Detects outliers using the Z score method method
     
@@ -193,7 +193,7 @@ def z_score_indices_of_outliers(X, threshold=3):
 
 
 # Detecting outliers with the Elliptical Envelope method
-def ellipses_indices_of_outliers(X, contamination=0.1):
+def ellipses_indices_of_outliers(X: np.ndarray, contamination: float = 0.1) -> np.ndarray:
     '''
     Detects outliers using the elliptical envelope method
     
@@ -296,204 +296,7 @@ def one_class_svm_indices_of_outliers(X):
     outlier_indices = np.where(outliers == -1)
     return outlier_indices
 
-
-# Detecting all outliers in a dataframe using multiple methods
-def outlier_report(dataframe, z_threshold=3, per_threshold=0.95, contamination=0.1, n_trees=100):
-    '''
-    TODO: - Write Docstring
-          - Finish commenting function
-    '''
-    
-    # Converting to a pandas dataframe if it is an array
-    if type(dataframe) != 'pandas.core.frame.DataFrame':
-        try:
-            dataframe = pd.DataFrame(dataframe)
-        except:
-            return 'Must be either a dataframe or a numpy array'
-    
-    # Creating a copy to avoid fidelity issues
-    dataframe = dataframe.copy()
-    
-    # Dropping categorical columns
-    dataframe = dataframe.select_dtypes(exclude=['bool_'])
-    for column in dataframe.columns:
-        num_unique_values = len(dataframe[column].unique())
-        if num_unique_values < 30:
-            dataframe = dataframe.drop(column, axis=1)
-    
-    # Functions for performing outlier detection
-    def iqr_indices_of_outliers(X):
-        '''
-        Determines outliers with the interquartile range (IQR) method
-    
-        Input: An array of one variable to detect outliers for
-        Output: An array with indices of detected outliers
-        '''
-        q1, q3 = np.percentile(X, [25, 75])
-        iqr = q3 - q1
-        lower_bound = q1 - (iqr * 1.5)
-        upper_bound = q3 + (iqr * 1.5)
-        outlier_indices = np.where((X > upper_bound) | (X < lower_bound))
-        return outlier_indices
-    
-    def z_score_indices_of_outliers(X):
-        '''
-        Determines outliers based off of the Z score
-    
-        Input: An array of one variable to detect outliers for
-        Output: An array with indices of detected outliers
-        '''
-        X_mean = np.mean(X)
-        X_stdev = np.std(X)
-        z_scores = [(y - X_mean) / X_stdev for y in X]
-        outlier_indices = np.where(np.abs(z_scores) > z_threshold)
-        return outlier_indices
-    
-    def percentile_indices_of_outliers(X):
-        '''
-        Determines outliers based off of percentiles
-    
-        Input: An array of one variable to detect outliers for
-        Output: An array with indices of detected outliers
-        '''
-        diff = (1 - per_threshold) / 2.0
-        minval, maxval = np.percentile(X, [diff, 100 - diff])
-        outlier_indices = np.where((X < minval) | (X > maxval))
-        return outlier_indices
-    
-    def ellipses_envelope_indices_of_outliers(X):
-        '''
-        Detects outliers using the elliptical envelope method
-    
-        Input: An array of all variables to detect outliers for
-        Output: An array with indices of detected outliers
-        '''
-        from sklearn.covariance import EllipticEnvelope
-    
-        # Creating and fitting the detector
-        outlier_detector = EllipticEnvelope(contamination=contamination)
-        outlier_detector.fit(X)
-    
-        # Predicting outliers and outputting an array with 1 if it is an outlier
-        outliers = outlier_detector.predict(X)
-        outlier_indices = np.where(outliers == -1)
-        return outlier_indices
-    
-    def isolation_forest_indices_of_outliers(X):
-        '''
-        Detects outliers using the isolation forest method
-    
-        Input: An array of all variables to detect outliers for
-        Output: An array with indices of detected outliers
-        '''
-        from sklearn.ensemble import IsolationForest
-    
-        # Creating and fitting the detector
-        outlier_detector = IsolationForest(n_estimators=n_trees,
-                                           contamination=contamination)
-        outlier_detector.fit(X)
-    
-        # Predicting outliers and outputting an array with 1 if it is an outlier
-        outliers = outlier_detector.predict(X)
-        outlier_indices = np.where(outliers == -1)
-        return outlier_indices
-    
-    def one_class_svm_indices_of_outliers(X):
-        '''
-        Detects outliers using the one class SVM method
-    
-        Input: An array of all variables to detect outliers for
-        Output: An array with indices of detected outliers
-        '''
-        from sklearn.svm import OneClassSVM
-    
-        # Creating and fitting the detector
-        outlier_detector = OneClassSVM()
-        outlier_detector.fit(X)
-    
-        # Predicting outliers and outputting an array with 1 if it is an outlier
-        outliers = outlier_detector.predict(X)
-        outlier_indices = np.where(outliers == -1)
-        return outlier_indices
-    
-    
-    # Dictionaries for individual features to be packaged into a master dictionary
-    iqr_outlier_indices = {}
-    z_score_outlier_indices = {}
-    percentile_outlier_indices = {}
-    multiple_outlier_indices = {}  # Indices with two or more detections
-    
-    print('Detecting outliers', '\n')
-    
-    # Creating an empty data frame to fill with results
-    results = pd.DataFrame(columns=['IQR', 'Z Score', 'Percentile', 'Multiple'])
-    
-    # Single column outlier tests
-    print('Single feature outlier tests')
-    for feature in range(dataframe.shape[1]):
-        
-        # Gathering feature names for use in output dictionary and results dataframe
-        feature_name = dataframe.columns[feature]
-        
-        # Finding outliers
-        iqr_outliers = iqr_indices_of_outliers(dataframe.iloc[:, feature])[0]
-        z_score_outliers = z_score_indices_of_outliers(dataframe.iloc[:, feature])[0]
-        percentile_outliers = percentile_indices_of_outliers(dataframe.iloc[:, feature])[0]
-        multiple_outliers = np.intersect1d(iqr_outliers, z_score_outliers)  # TODO: Fix this
-        
-        # Adding to the empty dictionaries
-        iqr_outlier_indices[feature_name] = iqr_outliers
-        z_score_outlier_indices[feature_name] = z_score_outliers
-        percentile_outlier_indices[feature_name] = percentile_outliers
-        multiple_outlier_indices[feature_name] = multiple_outliers
-        
-        # Adding to results dataframe
-        outlier_counts = {'IQR': len(iqr_outliers),
-                          'Z Score': len(z_score_outliers),
-                          'Percentile': len(percentile_outliers),
-                          'Multiple': len(multiple_outliers)}
-        outlier_counts_series = pd.Series(outlier_counts, name=feature_name)
-        results = results.append(outlier_counts_series)
-    
-    # Calculating the subtotal of outliers found
-    results_subtotal = results.sum()
-    results_subtotal.name = 'Total'
-    results = results.append(results_subtotal)
-    
-    # Calculating the percent of total values in each column
-    num_observations = dataframe.shape[0]
-    results['IQR %'] = results['IQR'] / num_observations
-    results['Z Score %'] = results['Z Score'] / num_observations
-    results['Percentile %'] = results['Percentile'] / num_observations
-    results['Multiple %'] = results['Multiple'] / num_observations
-    
-    # Printing the results dataframe as a table
-    print(results, '\n')
-    
-    # All column outlier tests
-    print('All feature outlier tests')
-    ellipses_envelope_outlier_indices = ellipses_envelope_indices_of_outliers(dataframe)
-    print('- Ellipses Envelope: {0}'.format(len(ellipses_envelope_outlier_indices[0])))
-    
-    isolation_forest_outlier_indices = isolation_forest_indices_of_outliers(dataframe)
-    print('- Isolation Forest: {0}'.format(len(isolation_forest_outlier_indices[0])))
-
-    one_class_svm_outlier_indices = one_class_svm_indices_of_outliers(dataframe)
-    print('- One Class SVM: {0}'.format(len(one_class_svm_outlier_indices[0])))
-
-    # Putting together the final dictionary for output
-    all_outlier_indices = {}
-    all_outlier_indices['Ellipses Envelope'] = ellipses_envelope_outlier_indices
-    all_outlier_indices['Isolation Forest'] = isolation_forest_outlier_indices
-    all_outlier_indices['One Class SVM'] = one_class_svm_outlier_indices
-    all_outlier_indices['IQR'] = iqr_outlier_indices
-    all_outlier_indices['Z Score'] = z_score_outlier_indices
-    all_outlier_indices['Percentile'] = percentile_outlier_indices
-    all_outlier_indices['Multiple'] = multiple_outlier_indices
-    
-    return all_outlier_indices
-
-        
+       
 outlier_report(df)['feature']['Outlier type']  # Returns array of indices for outliers
 # or
 outlier_report(df)['Multiple feature outlier type']  # Returns array of indices for outliers
@@ -516,7 +319,7 @@ X_norm = min_max_scaler.fit_transform(X)  # Normalizing across columns
 df.groupby(['level_1', 'level_2']).size().groupby(level='level_1').apply(lambda x: x / x.sum())
 
 # Principal Component Analysis (PCA)
-def fit_PCA(X, num_components=0.99):
+def fit_PCA(X: np.ndarray, num_components: float = 0.99) -> np.ndarray:
     '''
     Performs min-max normalization and PCA transformation on the input data array
     
@@ -559,7 +362,7 @@ def fit_PCA(X, num_components=0.99):
  
     
 # Oversampling
-def oversample_binary_label(dataframe, label_column):
+def oversample_binary_label(dataframe: pd.DataFrame, label_column: str) -> pd.DataFrame:
     '''
     Oversamples a dataframe with a binary label to have an equal proportion in classes. Dynamically
     determines the label with the lower proportion.
