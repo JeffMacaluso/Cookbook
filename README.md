@@ -36,7 +36,9 @@ Personal reference scripts for commonly used code
     - [Lemmatizing (note: similar to stemming)](https://github.com/JeffMacaluso/Cookbook/blob/master/NLP.py#L26)
     - [TF-IDF](https://github.com/JeffMacaluso/Cookbook/blob/master/NLP.py#L44)
     - [Topic Modeling](https://github.com/JeffMacaluso/Cookbook/blob/d3c00bfdb8daa9685babaf698292e450d72101f0/NLP.py#L60)
-- **[Plotting](https://github.com/JeffMacaluso/Cookbook/blob/master/Plotting.py):** Code snippets for common plots
+- **Plotting:** Code snippets for common plots
+    - [Matplotlib & Seaborn](https://github.com/JeffMacaluso/Cookbook/blob/master/Plotting-Matplotlib.py)
+    - [Plotly](https://github.com/JeffMacaluso/Cookbook/blob/master/Plotting-Plotly.py)
 - **[Deep Learning (CNN)](https://nbviewer.jupyter.org/github/JeffMacaluso/Cookbook/blob/master/DeepLearning-CNN.ipynb):** Convolutional neural networks in Keras, CNTK, PyTorch, and TensorFlow
 - **[DevOps](https://github.com/JeffMacaluso/Cookbook/tree/master/DevOps)**: A folder containing scripts for operationalizing machine learning models
     - **[Flask](https://github.com/JeffMacaluso/Cookbook/tree/master/DevOps/Flask)**: Operationalizing a trained machine learning model as a RESTful API
