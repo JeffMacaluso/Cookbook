@@ -313,7 +313,12 @@ df['TargetVariable'].astype('category').cat.codes
 # Scaling from 0 to 1
 from sklearn import preprocessing
 min_max_scaler = preprocessing.MinMaxScaler()
-X_norm = min_max_scaler.fit_transform(X)  # Normalizing across columns
+X_scaled = min_max_scaler.fit_transform(X)  # Scaling from 0 to 1 across columns
+
+# Normalizing w/ standard scaling
+from sklearn import preprocessing
+normalizer = preprocessing.StandardScaler
+X_normalized = normalizer.fit_transform(X)  # Normalizing across columns
 
 # Grouping by multiple levels and getting the percentage of the second level by the first level
 df.groupby(['level_1', 'level_2']).size().groupby(level='level_1').apply(lambda x: x / x.sum())
