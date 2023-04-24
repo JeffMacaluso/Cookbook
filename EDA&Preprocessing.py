@@ -317,7 +317,7 @@ X_scaled = min_max_scaler.fit_transform(X)  # Scaling from 0 to 1 across columns
 
 # Normalizing w/ standard scaling
 from sklearn import preprocessing
-normalizer = preprocessing.StandardScaler
+normalizer = preprocessing.StandardScaler()
 X_normalized = normalizer.fit_transform(X)  # Normalizing across columns
 
 # Grouping by multiple levels and getting the percentage of the second level by the first level
